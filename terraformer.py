@@ -2,6 +2,8 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import math
 
+from pixelgrid import *
+
 class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
@@ -35,10 +37,12 @@ class Application(tk.Frame):
         # Create canvas for larger view
         self.imagecanvas = tk.Canvas(self, width=512, height=512)
         self.imagecanvas.grid(row=1, column=0)
-        self.imagecanvasimage = self.imagecanvas.create_image(0,0)
+        self.imagecanvasimage = self.imagecanvas.create_image(
+                0,0,anchor=tk.NW)
         self.imagecanvasselection = self.imagecanvas.create_rectangle(
                 1, 1, self.multiple * self.basezoom * 8, 
-                self.multiple * self.basezoom * 8)
+                self.multiple * self.basezoom * 8,
+                outline="grey")
         self.imagecanvas.bind("<Button-1>", self.clickimagecanvas)
         
         # Create canvas for editing
@@ -47,7 +51,9 @@ class Application(tk.Frame):
 
     def newFile(self):
         # Create new photoimage
-        self.image = tk.PhotoImage()
+        self.pixelgrid = PixelGrid([(0,0,0),(255,255,255)])
+        self.pixelgrid.set(45,45,1)
+        self.image = self.pixelgrid.getTkImage(self.basezoom)
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
 
     def resetscale(self, event):
@@ -61,7 +67,6 @@ class Application(tk.Frame):
         newy = self.multiple * self.basezoom * 8 * math.floor(
                 self.imagecanvas.canvasy(event.y) / 
                 (self.basezoom * self.multiple * 8))
-        print(newx)
         self.imagecanvas.coords(self.imagecanvasselection, newx, newy,
                                 newx + self.multiple * self.basezoom * 8,
                                 newy + self.multiple * self.basezoom * 8)
