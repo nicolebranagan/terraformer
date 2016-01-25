@@ -44,13 +44,25 @@ class PixelGrid:
         photo = tk.PhotoImage(width=8*self._width*zoom, 
                               height=8*self._height*zoom)
         photo.put("#%02x%02x%02x" % self.palette[0], 
-        #          to=(0,0,8*self._width*zoom,8*self._height*zoom))
-                  to=(0,0,512,512))
+                  to=(0,0,8*self._width*zoom,8*self._height*zoom))
         for i in range(0, 8*self._width):
             for j in range(0, 8*self._height):
                 if self.getColor(i,j) != 0:
                     photo.put(
                         "#%02x%02x%02x" % self.getColor(i,j), 
+                        to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
+        return photo
+
+    def getTkSubset(self, zoom, x, y, r):
+        photo = tk.PhotoImage(width=8*r*zoom, 
+                              height=8*r*zoom)
+        photo.put("#%02x%02x%02x" % self.palette[0], 
+                  to=(0,0,8*self._width*zoom,8*self._height*zoom))
+        for i in range(0, 8*r):
+            for j in range(0, 8*r):
+                if self.getColor(i,j) != 0:
+                    photo.put(
+                        "#%02x%02x%02x" % self.getColor(i + x*8,j + y*8), 
                         to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
         return photo
 

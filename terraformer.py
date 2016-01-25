@@ -51,6 +51,8 @@ class Application(tk.Frame):
         # Create canvas for editing
         self.editcanvas = tk.Canvas(self, width=512, height=512)
         self.editcanvas.grid(row=1, column=1)
+        self.editcanvasimage = self.editcanvas.create_image(
+                0,0,anchor=tk.NW)
 
     def newFile(self):
         # Create new photoimage
@@ -79,6 +81,13 @@ class Application(tk.Frame):
         self.imagecanvas.coords(self.imagecanvasselection, newx, newy,
                                 newx + self.multiple * self.basezoom * 8,
                                 newy + self.multiple * self.basezoom * 8)
+
+        self.editimage = self.pixelgrid.getTkSubset(
+                self.basezoom * (256 // (8*self.multiple)),
+                self.selectedx, self.selectedy, 
+                self.multiple)
+        self.editcanvas.itemconfig(self.editcanvasimage, 
+                                   image=self.editimage)
 
 root = tk.Tk()
 app = Application(master=root)
