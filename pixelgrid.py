@@ -52,7 +52,6 @@ class PixelGrid:
                     photo.put(
                         "#%02x%02x%02x" % self.getColor(i,j), 
                         to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
-        print(8*self._width*zoom)
         return photo
 
 class PixelTile:

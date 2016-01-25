@@ -8,6 +8,9 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self, master)
         self.master = master
+        self.selectedx = 0
+        self.selectedy = 0
+
         self.pack()
         self.configure()
         self.createWidgets()
@@ -58,15 +61,21 @@ class Application(tk.Frame):
 
     def resetscale(self, event):
         self.multiple=self.multiplescale.get()
+        self.reselecttile()
 
     def clickimagecanvas(self, event):
         # Click on imagecanvas
-        newx = self.multiple * self.basezoom * 8 * math.floor(
+        self.selectedx = math.floor(
                 self.imagecanvas.canvasx(event.x) / 
-                (self.basezoom * self.multiple * 8))
-        newy = self.multiple * self.basezoom * 8 * math.floor(
+                (self.basezoom * 8))
+        self.selectedy = math.floor(
                 self.imagecanvas.canvasy(event.y) / 
-                (self.basezoom * self.multiple * 8))
+                (self.basezoom * 8))
+        self.reselecttile()
+
+    def reselecttile(self):
+        newx = self.selectedx * self.basezoom * 8
+        newy = self.selectedy * self.basezoom * 8
         self.imagecanvas.coords(self.imagecanvasselection, newx, newy,
                                 newx + self.multiple * self.basezoom * 8,
                                 newy + self.multiple * self.basezoom * 8)
