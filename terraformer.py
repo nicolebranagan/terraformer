@@ -31,6 +31,10 @@ class Application(tk.Frame):
         filemenu.add_command(label="Open")
         menubar.add_cascade(label="File", menu=filemenu)
 
+        debugmenu = tk.Menu(menubar)
+        debugmenu.add_command(label="Redraw", command=self.redraw)
+        menubar.add_cascade(label="Debug", menu=debugmenu)
+        
         # Create zoom
         self.multiplescale = ttk.Scale(self, from_=1.0, to=8.0,
                                       orient=tk.HORIZONTAL,

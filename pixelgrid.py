@@ -21,13 +21,7 @@ class PixelGrid:
             return 0
 
     def getColor(self, x, y):
-        tilex = math.floor(x / 8)
-        tiley = math.floor(x / 8)
-        
-        if ( (tilex, tiley) in self._tiles):
-            return self.palette[self.get(x,y)]
-        else:
-            return self.palette[0]
+        return self.palette[self.get(x,y)]
 
     def set(self, x, y, val):
         tilex = x // 8
@@ -47,7 +41,7 @@ class PixelGrid:
                   to=(0,0,8*self._width*zoom,8*self._height*zoom))
         for i in range(0, 8*self._width):
             for j in range(0, 8*self._height):
-                if self.getColor(i,j) != 0:
+                if self.get(i,j) != 0:
                     photo.put(
                         "#%02x%02x%02x" % self.getColor(i,j), 
                         to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
@@ -57,10 +51,10 @@ class PixelGrid:
         photo = tk.PhotoImage(width=8*r*zoom, 
                               height=8*r*zoom)
         photo.put("#%02x%02x%02x" % self.palette[0], 
-                  to=(0,0,8*self._width*zoom,8*self._height*zoom))
+                  to=(0,0,8*r*zoom,8*r*zoom))
         for i in range(0, 8*r):
             for j in range(0, 8*r):
-                if self.getColor(i,j) != 0:
+                if self.get(i + x*8,j + y*8) != 0:
                     photo.put(
                         "#%02x%02x%02x" % self.getColor(i + x*8,j + y*8), 
                         to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
