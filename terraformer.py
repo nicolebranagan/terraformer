@@ -10,6 +10,7 @@ class Application(tk.Frame):
         self.master = master
         self.selectedx = 0
         self.selectedy = 0
+        self.currentcolor = 0
 
         self.pack()
         self.configure()
@@ -58,16 +59,36 @@ class Application(tk.Frame):
         self.editcanvasimage = self.editcanvas.create_image(
                 0,0,anchor=tk.NW)
         self.editcanvas.bind("<Button-1>", self.clickeditcanvas)
+        self.editcanvas.bind("<Button-3>", self.rclickeditcanvas)
+
+        # Create palette
+        self.palettecanvas = tk.Canvas(self, width=512, height=32)
+        self.palettecanvas.grid(row=2, column=1)
+        self.paletteimage = self.palettecanvas.create_image(
+                0, 0, anchor=tk.NW)
+        self.paletteselect = self.palettecanvas.create_rectangle(
+                1, 1, 32, 32, outline="red")
+        self.palettecanvas.bind("<Button-1>", self.clickpalettecanvas)
 
     def newFile(self):
         # Create new photoimage
-        self.pixelgrid = PixelGrid([(0,0,0),(255,255,255)])
-        self.pixelgrid.set(45,45,1)
+        self.pixelgrid = PixelGrid([(0,0,0),(128,128,128),(255,255,255)])
+        self.drawpalette()
         self.image = self.pixelgrid.getTkImage(self.basezoom)
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
+        self.reselecttile()
+
+    def drawpalette(self):
+        self.palette = tk.PhotoImage(width=512, height=32)
+        i = 0
+        for c in self.pixelgrid.palette:
+            self.palette.put("#%02x%02x%02x" % c,
+                             to=(i*32,0,(i+1)*32,32))
+            i = i+1
+        self.palettecanvas.itemconfig(self.paletteimage, image=self.palette)
 
     def resetscale(self, event):
-        test = int(self.multiplescale.get())
+        test = math.floor(self.multiplescale.get())
         if test == 3:
             if (self.multiple > test):
                 self.multiple = 2
@@ -98,8 +119,8 @@ class Application(tk.Frame):
         self.reselecttile()
 
     def reselecttile(self):
-        newx = self.selectedx * self.basezoom * 8
-        newy = self.selectedy * self.basezoom * 8
+        newx = self.selectedx * self.basezoom * 8 + 1
+        newy = self.selectedy * self.basezoom * 8 + 1
         self.imagecanvas.coords(self.imagecanvasselection, newx, newy,
                                 newx + self.multiple * self.basezoom * 8,
                                 newy + self.multiple * self.basezoom * 8)
@@ -116,8 +137,27 @@ class Application(tk.Frame):
             256 // (8*self.multiple))) 
         y = math.floor(self.editcanvas.canvasy(event.y) // (self.basezoom *
             256 // (8*self.multiple)))
-        self.pixelgrid.set(self.selectedx * 8 + x, self.selectedy * 8 + y, 1)
-        self.quickdraw(x, y, 1)
+        self.pixelgrid.set(self.selectedx * 8 + x, self.selectedy * 8 + y, 
+                           self.currentcolor)
+        self.quickdraw(x, y, self.currentcolor)
+    
+    def rclickeditcanvas(self, event):
+        x = math.floor(self.editcanvas.canvasx(event.x) // (self.basezoom *
+            256 // (8*self.multiple))) 
+        y = math.floor(self.editcanvas.canvasy(event.y) // (self.basezoom *
+            256 // (8*self.multiple)))
+
+        self.selectcolor(self.pixelgrid.get(self.selectedx * 8 + x,
+                         self.selectedy * 8 + y))
+
+    def clickpalettecanvas(self, event):
+        i = math.floor(self.palettecanvas.canvasx(event.x) // 32)
+        if i < len(self.pixelgrid.palette):
+            self.selectcolor(i)
+
+    def selectcolor(self, i):
+        self.currentcolor = i
+        self.palettecanvas.coords(self.paletteselect, i*32, 1, (i+1)*32, 32)
 
     def quickdraw(self, x, y, v):
         zoom = self.basezoom * 256 // (8*self.multiple)
