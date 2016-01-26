@@ -76,6 +76,5 @@ class PixelTile:
         return self._pixels[x + y*self._width]
 
     def set(self, x, y, val):
-        print((x, y))
         self._pixels[x + y*self._width] = val
 

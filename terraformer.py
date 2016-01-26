@@ -92,14 +92,14 @@ class Application(tk.Frame):
 
     def clickeditcanvas(self, event):
         x = math.floor(self.editcanvas.canvasx(event.x) // (self.basezoom *
-            (256 // 8*self.multiple))) 
+            256 // (8*self.multiple))) 
         y = math.floor(self.editcanvas.canvasy(event.y) // (self.basezoom *
-            (256 // 8*self.multiple)))
+            256 // (8*self.multiple)))
         self.pixelgrid.set(self.selectedx * 8 + x, self.selectedy * 8 + y, 1)
         self.quickdraw(x, y, 1)
 
     def quickdraw(self, x, y, v):
-        zoom = self.basezoom * (256 // 8*self.multiple)
+        zoom = self.basezoom * 256 // (8*self.multiple)
         self.editimage.put("#%02x%02x%02x" % self.pixelgrid.palette[v],
                            to=(x*zoom, y*zoom, x*zoom + zoom, y*zoom + zoom))
         
@@ -109,7 +109,6 @@ class Application(tk.Frame):
         self.image.put("#%02x%02x%02x" % self.pixelgrid.palette[v],
                        to=(x*zoom, y*zoom, x*zoom + zoom, y*zoom + zoom))
         
-
     def redraw(self):
         self.image = self.pixelgrid.getTkImage(self.basezoom)
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
