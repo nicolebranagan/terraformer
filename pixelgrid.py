@@ -31,7 +31,7 @@ class PixelGrid:
 
     def set(self, x, y, val):
         tilex = x // 8
-        tiley = x // 8
+        tiley = y // 8
         relx = x - tilex*8
         rely = y - tiley*8
         
@@ -76,5 +76,6 @@ class PixelTile:
         return self._pixels[x + y*self._width]
 
     def set(self, x, y, val):
+        print((x, y))
         self._pixels[x + y*self._width] = val
 

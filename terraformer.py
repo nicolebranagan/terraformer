@@ -53,6 +53,7 @@ class Application(tk.Frame):
         self.editcanvas.grid(row=1, column=1)
         self.editcanvasimage = self.editcanvas.create_image(
                 0,0,anchor=tk.NW)
+        self.editcanvas.bind("<Button-1>", self.clickeditcanvas)
 
     def newFile(self):
         # Create new photoimage
@@ -89,6 +90,37 @@ class Application(tk.Frame):
         self.editcanvas.itemconfig(self.editcanvasimage, 
                                    image=self.editimage)
 
+    def clickeditcanvas(self, event):
+        x = math.floor(self.editcanvas.canvasx(event.x) // (self.basezoom *
+            (256 // 8*self.multiple))) 
+        y = math.floor(self.editcanvas.canvasy(event.y) // (self.basezoom *
+            (256 // 8*self.multiple)))
+        self.pixelgrid.set(self.selectedx * 8 + x, self.selectedy * 8 + y, 1)
+        self.quickdraw(x, y, 1)
+
+    def quickdraw(self, x, y, v):
+        zoom = self.basezoom * (256 // 8*self.multiple)
+        self.editimage.put("#%02x%02x%02x" % self.pixelgrid.palette[v],
+                           to=(x*zoom, y*zoom, x*zoom + zoom, y*zoom + zoom))
+        
+        x = x + 8*self.selectedx
+        y = y + 8*self.selectedy
+        zoom = self.basezoom
+        self.image.put("#%02x%02x%02x" % self.pixelgrid.palette[v],
+                       to=(x*zoom, y*zoom, x*zoom + zoom, y*zoom + zoom))
+        
+
+    def redraw(self):
+        self.image = self.pixelgrid.getTkImage(self.basezoom)
+        self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
+        self.editimage = self.pixelgrid.getTkSubset(
+                self.basezoom * (256 // (8*self.multiple)),
+                self.selectedx, self.selectedy, 
+                self.multiple)
+        self.editcanvas.itemconfig(self.editcanvasimage, 
+                                   image=self.editimage)
+
+    
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
