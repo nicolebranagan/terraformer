@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import math
 
+import palette
 from pixelgrid import *
 
 class Application(tk.Frame):
@@ -32,6 +33,15 @@ class Application(tk.Frame):
         filemenu.add_command(label="Open")
         menubar.add_cascade(label="File", menu=filemenu)
 
+        palettemenu = tk.Menu(menubar)
+        palettemenu.add_command(
+                label="EGA",
+                command=lambda: self.setpalette(palette.ega))
+        palettemenu.add_command(
+                label="Windows 16-color",
+                command=lambda: self.setpalette(palette.win16))
+        menubar.add_cascade(label="Palette", menu=palettemenu)
+
         debugmenu = tk.Menu(menubar)
         debugmenu.add_command(label="Redraw", command=self.redraw)
         menubar.add_cascade(label="Debug", menu=debugmenu)
@@ -59,6 +69,7 @@ class Application(tk.Frame):
         self.editcanvasimage = self.editcanvas.create_image(
                 0,0,anchor=tk.NW)
         self.editcanvas.bind("<Button-1>", self.clickeditcanvas)
+        self.editcanvas.bind("<B1-Motion>", self.clickeditcanvas)
         self.editcanvas.bind("<Button-3>", self.rclickeditcanvas)
 
         # Create palette
@@ -72,7 +83,7 @@ class Application(tk.Frame):
 
     def newFile(self):
         # Create new photoimage
-        self.pixelgrid = PixelGrid([(0,0,0),(128,128,128),(255,255,255)])
+        self.pixelgrid = PixelGrid(palette.ega)
         self.drawpalette()
         self.image = self.pixelgrid.getTkImage(self.basezoom)
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
@@ -119,6 +130,11 @@ class Application(tk.Frame):
         self.reselecttile()
 
     def reselecttile(self):
+        if (self.selectedx + self.multiple > 32):
+            self.selectedx = 32 - self.multiple
+        if (self.selectedy + self.multiple > 32):
+            self.selectedy = 32 - self.multiple
+        
         newx = self.selectedx * self.basezoom * 8 + 1
         newy = self.selectedy * self.basezoom * 8 + 1
         self.imagecanvas.coords(self.imagecanvasselection, newx, newy,
@@ -137,6 +153,10 @@ class Application(tk.Frame):
             256 // (8*self.multiple))) 
         y = math.floor(self.editcanvas.canvasy(event.y) // (self.basezoom *
             256 // (8*self.multiple)))
+
+        if (x < 0 or y < 0 or x >= self.multiple * 8 or y >= self.multiple * 8):
+            return
+
         self.pixelgrid.set(self.selectedx * 8 + x, self.selectedy * 8 + y, 
                            self.currentcolor)
         self.quickdraw(x, y, self.currentcolor)
@@ -159,6 +179,13 @@ class Application(tk.Frame):
         self.currentcolor = i
         self.palettecanvas.coords(self.paletteselect, i*32, 1, (i+1)*32, 32)
 
+    def setpalette(self, p):
+        p = list(p) # Keep original palette unaltered
+        self.pixelgrid.palette = p
+        self.currentcolor = 0
+        self.drawpalette()
+        self.redraw()
+
     def quickdraw(self, x, y, v):
         zoom = self.basezoom * 256 // (8*self.multiple)
         self.editimage.put("#%02x%02x%02x" % self.pixelgrid.palette[v],
@@ -180,7 +207,8 @@ class Application(tk.Frame):
         self.editcanvas.itemconfig(self.editcanvasimage, 
                                    image=self.editimage)
 
-    
+
+
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()

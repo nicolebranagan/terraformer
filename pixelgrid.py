@@ -28,6 +28,10 @@ class PixelGrid:
         tiley = y // 8
         relx = x - tilex*8
         rely = y - tiley*8
+
+        if (tilex < 0 or tilex >= self._width
+            or tiley < 0 or tiley >= self._height):
+            return
         
         if ( (tilex, tiley) not in self._tiles):
             self._tiles[(tilex,tiley)] = PixelTile()
