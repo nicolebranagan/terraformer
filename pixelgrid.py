@@ -29,15 +29,14 @@ class PixelGrid:
         relx = x - tilex*8
         rely = y - tiley*8
 
-        if (tilex < 0 or tilex >= self._width
-            or tiley < 0 or tiley >= self._height):
-            return
-        
         if ( (tilex, tiley) not in self._tiles):
             self._tiles[(tilex,tiley)] = PixelTile()
 
         self._tiles[(tilex,tiley)].set(relx, rely, val)
-    
+
+    def clearTile(self, x, y): 
+        self._tiles.pop((x,y),None)
+
     def getTkImage(self, zoom):
         photo = tk.PhotoImage(width=8*self._width*zoom, 
                               height=8*self._height*zoom)

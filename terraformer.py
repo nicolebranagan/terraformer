@@ -11,6 +11,7 @@ class Application(tk.Frame):
         self.master = master
         self.selectedx = 0
         self.selectedy = 0
+        self.selecting = False
         self.currentcolor = 0
 
         self.pack()
@@ -25,6 +26,8 @@ class Application(tk.Frame):
     def createWidgets(self):
         self.master.title("Terraformer")
         
+        self.master.bind("<Delete>", self.delete)
+
         # Create a menu
         menubar = tk.Menu(self)
         self.master.config(menu=menubar)
@@ -62,7 +65,9 @@ class Application(tk.Frame):
                 self.multiple * self.basezoom * 8,
                 outline="grey")
         self.imagecanvas.bind("<Button-1>", self.clickimagecanvas)
-        
+        self.imagecanvas.bind("<Button-3>", self.rclickimagecanvas)
+        self.imagecanvas.bind("<B3-Motion>", self.rmotionimagecanvas)
+
         # Create canvas for editing
         self.editcanvas = tk.Canvas(self, width=512, height=512)
         self.editcanvas.grid(row=1, column=1)
@@ -120,7 +125,10 @@ class Application(tk.Frame):
         self.reselecttile()
 
     def clickimagecanvas(self, event):
-        # Click on imagecanvas
+        if (self.selecting):
+            self.selecting = False
+            self.imagecanvas.itemconfig(self.imagecanvasselection, outline="grey")
+
         self.selectedx = math.floor(
                 self.imagecanvas.canvasx(event.x) / 
                 (self.basezoom * 8))
@@ -129,15 +137,62 @@ class Application(tk.Frame):
                 (self.basezoom * 8))
         self.reselecttile()
 
+    def rclickimagecanvas(self, event):
+        self.selecting = True
+        self.editimage = tk.PhotoImage()
+        self.editcanvas.itemconfig(self.editcanvasimage, 
+                                   image=self.editimage)
+        self.imagecanvas.itemconfig(self.imagecanvasselection, outline="cyan")
+        self.selection = [
+            math.floor(self.imagecanvas.canvasx(event.x) / 
+                       (self.basezoom * 8)),
+            math.floor(self.imagecanvas.canvasy(event.y) / 
+                       (self.basezoom * 8)),
+            math.floor(self.imagecanvas.canvasx(event.x) / 
+                       (self.basezoom * 8)) + 1,
+            math.floor(self.imagecanvas.canvasy(event.y) / 
+                       (self.basezoom * 8)) + 1]
+        self.imagecanvas.coords(self.imagecanvasselection, 
+                                self.selection[0] * self.basezoom * 8,
+                                self.selection[1] * self.basezoom * 8,
+                                self.selection[2] * self.basezoom * 8,
+                                self.selection[3] * self.basezoom * 8)
+    
+    def rmotionimagecanvas(self, event):
+        newx = math.floor(self.imagecanvas.canvasx(event.x) / 
+                          (self.basezoom * 8) + 1)
+        newy = math.floor(self.imagecanvas.canvasy(event.y) /
+                          (self.basezoom * 8) + 1)
+        
+        # Stay in the grid
+        newx = max(min(32, newx), 0)
+        newy = max(min(32, newy), 0)
+
+        if (newx != self.selection[0]):
+            self.selection[2] = newx
+        if (newy != self.selection[1]):
+            self.selection[3] = newy
+
+        self.imagecanvas.coords(
+                self.imagecanvasselection,
+                min(self.selection[0], self.selection[2])*
+                self.basezoom*8,
+                min(self.selection[1], self.selection[3])*
+                self.basezoom*8,
+                max(self.selection[0], self.selection[2])*
+                self.basezoom*8,
+                max(self.selection[1], self.selection[3])*
+                self.basezoom*8)
+
     def reselecttile(self):
         if (self.selectedx + self.multiple > 32):
             self.selectedx = 32 - self.multiple
         if (self.selectedy + self.multiple > 32):
             self.selectedy = 32 - self.multiple
         
-        newx = self.selectedx * self.basezoom * 8 + 1
-        newy = self.selectedy * self.basezoom * 8 + 1
-        self.imagecanvas.coords(self.imagecanvasselection, newx, newy,
+        newx = self.selectedx * self.basezoom * 8
+        newy = self.selectedy * self.basezoom * 8
+        self.imagecanvas.coords(self.imagecanvasselection, newx+1, newy+1,
                                 newx + self.multiple * self.basezoom * 8,
                                 newy + self.multiple * self.basezoom * 8)
 
@@ -149,6 +204,8 @@ class Application(tk.Frame):
                                    image=self.editimage)
 
     def clickeditcanvas(self, event):
+        if (self.selecting): return
+
         x = math.floor(self.editcanvas.canvasx(event.x) // (self.basezoom *
             256 // (8*self.multiple))) 
         y = math.floor(self.editcanvas.canvasy(event.y) // (self.basezoom *
@@ -162,6 +219,8 @@ class Application(tk.Frame):
         self.quickdraw(x, y, self.currentcolor)
     
     def rclickeditcanvas(self, event):
+        if (self.selecting): return
+        
         x = math.floor(self.editcanvas.canvasx(event.x) // (self.basezoom *
             256 // (8*self.multiple))) 
         y = math.floor(self.editcanvas.canvasy(event.y) // (self.basezoom *
@@ -198,8 +257,7 @@ class Application(tk.Frame):
                        to=(x*zoom, y*zoom, x*zoom + zoom, y*zoom + zoom))
         
     def redraw(self):
-        self.image = self.pixelgrid.getTkImage(self.basezoom)
-        self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
+        self.redrawimage()
         self.editimage = self.pixelgrid.getTkSubset(
                 self.basezoom * (256 // (8*self.multiple)),
                 self.selectedx, self.selectedy, 
@@ -207,7 +265,28 @@ class Application(tk.Frame):
         self.editcanvas.itemconfig(self.editcanvasimage, 
                                    image=self.editimage)
 
+    def redrawimage(self):
+        self.image = self.pixelgrid.getTkImage(self.basezoom)
+        self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
 
+    def delete(self, event):
+        if (self.selecting):
+            rangex = range(min(self.selection[0],self.selection[2]),
+                    max(self.selection[0], self.selection[2]))
+            rangey = range(min(self.selection[1],self.selection[3]),
+                    max(self.selection[1], self.selection[3]))
+        else:
+            rangex = range(self.selectedx, self.selectedx + self.multiple)
+            rangey = range(self.selectedx, self.selectedx + self.multiple)
+        
+        for i in rangex:
+            for j in rangey:
+                self.pixelgrid.clearTile(i,j)
+        
+        if self.selecting:
+            self.redrawimage()
+        else:
+            self.redraw()
 
 root = tk.Tk()
 app = Application(master=root)
