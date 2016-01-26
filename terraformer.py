@@ -32,7 +32,7 @@ class Application(tk.Frame):
         menubar.add_cascade(label="File", menu=filemenu)
 
         # Create zoom
-        self.multiplescale = tk.Scale(self, from_=1.0, to=8.0,
+        self.multiplescale = ttk.Scale(self, from_=1.0, to=8.0,
                                       orient=tk.HORIZONTAL,
                                       command=self.resetscale)
         self.multiplescale.grid(row=0, column=0)
@@ -63,7 +63,24 @@ class Application(tk.Frame):
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
 
     def resetscale(self, event):
-        self.multiple=self.multiplescale.get()
+        test = int(self.multiplescale.get())
+        if test == 3:
+            if (self.multiple > test):
+                self.multiple = 2
+            else:
+                self.multiple = 4
+        elif test == 5:
+            self.multiple = 4
+        elif test == 6:
+            if (self.multiple > test):
+                self.multiple = 4
+            else:
+                self.multiple = 8
+        elif test == 7:
+            self.multiple = 8
+        else:
+            self.multiple = test
+
         self.reselecttile()
 
     def clickimagecanvas(self, event):
