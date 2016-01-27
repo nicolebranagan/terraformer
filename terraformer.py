@@ -139,9 +139,6 @@ class Application(tk.Frame):
 
     def rclickimagecanvas(self, event):
         self.selecting = True
-        self.editimage = tk.PhotoImage()
-        self.editcanvas.itemconfig(self.editcanvasimage, 
-                                   image=self.editimage)
         self.imagecanvas.itemconfig(self.imagecanvasselection, outline="cyan")
         self.selection = [
             math.floor(self.imagecanvas.canvasx(event.x) / 
@@ -157,7 +154,12 @@ class Application(tk.Frame):
                                 self.selection[1] * self.basezoom * 8,
                                 self.selection[2] * self.basezoom * 8,
                                 self.selection[3] * self.basezoom * 8)
-    
+      
+        self.editimage = PixelSubset(
+                self.pixelgrid, self.selection).getTkImage(self.basezoom)
+        self.editcanvas.itemconfig(self.editcanvasimage, 
+                                   image=self.editimage)
+
     def rmotionimagecanvas(self, event):
         newx = math.floor(self.imagecanvas.canvasx(event.x) / 
                           (self.basezoom * 8) + 1)
@@ -183,6 +185,11 @@ class Application(tk.Frame):
                 self.basezoom*8,
                 max(self.selection[1], self.selection[3])*
                 self.basezoom*8)
+
+        self.editimage = PixelSubset(
+                self.pixelgrid, self.selection).getTkImage(self.basezoom)
+        self.editcanvas.itemconfig(self.editcanvasimage, 
+                                   image=self.editimage)
 
     def reselecttile(self):
         if (self.selectedx + self.multiple > 32):

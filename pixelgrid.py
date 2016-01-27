@@ -75,3 +75,23 @@ class PixelTile:
     def set(self, x, y, val):
         self._pixels[x + y*self._width] = val
 
+class PixelSubset(PixelGrid):
+    def __init__(self, parent, selection):
+        self.parent = parent
+        self.palette = parent.palette
+        minx = min(selection[0], selection[2])
+        maxx = max(selection[0], selection[2])
+        miny = min(selection[1], selection[3])
+        maxy = max(selection[1], selection[3])
+        self._width = maxx-minx
+        self._height = maxy-miny
+        self._tiles = {}
+
+        for i in range(0, parent._width):
+            for j in range(0, parent._height):
+                if i >= minx and i <= maxx and j >= miny and j <= maxy:
+                    if (i,j) in parent._tiles:
+                        self._tiles[(i-minx, j-miny)] = parent._tiles[(i,j)]
+
+
+
