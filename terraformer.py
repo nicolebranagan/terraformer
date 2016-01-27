@@ -192,7 +192,7 @@ class Application(tk.Frame):
         
         newx = self.selectedx * self.basezoom * 8
         newy = self.selectedy * self.basezoom * 8
-        self.imagecanvas.coords(self.imagecanvasselection, newx+1, newy+1,
+        self.imagecanvas.coords(self.imagecanvasselection, newx, newy,
                                 newx + self.multiple * self.basezoom * 8,
                                 newy + self.multiple * self.basezoom * 8)
 
@@ -277,7 +277,7 @@ class Application(tk.Frame):
                     max(self.selection[1], self.selection[3]))
         else:
             rangex = range(self.selectedx, self.selectedx + self.multiple)
-            rangey = range(self.selectedx, self.selectedx + self.multiple)
+            rangey = range(self.selectedy, self.selectedx + self.multiple)
         
         for i in rangex:
             for j in rangey:
