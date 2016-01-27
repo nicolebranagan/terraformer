@@ -13,6 +13,7 @@ class Application(tk.Frame):
         self.selectedy = 0
         self.selecting = False
         self.currentcolor = 0
+        self.clipboard = None
 
         self.pack()
         self.configure()
@@ -27,6 +28,17 @@ class Application(tk.Frame):
         self.master.title("Terraformer")
         
         self.master.bind("<Delete>", self.delete)
+        self.master.bind("<Control-c>", self.copy)
+        self.master.bind("<Control-v>", self.paste)
+        
+        self.master.bind("<Left>", lambda x: self.reselecttile(
+                    self.selectedx-self.multiple, self.selectedy))
+        self.master.bind("<Right>", lambda x: self.reselecttile(
+                    self.selectedx+self.multiple, self.selectedy))
+        self.master.bind("<Up>", lambda x: self.reselecttile(
+                    self.selectedx, self.selectedy-self.multiple))
+        self.master.bind("<Down>", lambda x: self.reselecttile(
+                    self.selectedx, self.selectedy+self.multiple))
 
         # Create a menu
         menubar = tk.Menu(self)
@@ -35,6 +47,13 @@ class Application(tk.Frame):
         filemenu = tk.Menu(menubar)
         filemenu.add_command(label="Open")
         menubar.add_cascade(label="File", menu=filemenu)
+        
+        editmenu = tk.Menu(menubar)
+        editmenu.add_command(label="Copy", command=self.copy)
+        editmenu.add_command(label="Paste", command=self.paste)
+        editmenu.add_command(label="Clear clipboard", 
+                             command=self.clearclipboard)
+        menubar.add_cascade(label="Edit", menu=editmenu)
 
         palettemenu = tk.Menu(menubar)
         palettemenu.add_command(
@@ -92,7 +111,7 @@ class Application(tk.Frame):
         self.drawpalette()
         self.image = self.pixelgrid.getTkImage(self.basezoom)
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
-        self.reselecttile()
+        self.reselecttile(self.selectedx, self.selectedy)
 
     def drawpalette(self):
         self.palette = tk.PhotoImage(width=512, height=32)
@@ -122,20 +141,20 @@ class Application(tk.Frame):
         else:
             self.multiple = test
 
-        self.reselecttile()
+        self.reselecttile(self.selectedx, self.selectedy)
 
     def clickimagecanvas(self, event):
         if (self.selecting):
             self.selecting = False
             self.imagecanvas.itemconfig(self.imagecanvasselection, outline="grey")
 
-        self.selectedx = math.floor(
+        x = math.floor(
                 self.imagecanvas.canvasx(event.x) / 
                 (self.basezoom * 8))
-        self.selectedy = math.floor(
+        y = math.floor(
                 self.imagecanvas.canvasy(event.y) / 
                 (self.basezoom * 8))
-        self.reselecttile()
+        self.reselecttile(x, y)
 
     def rclickimagecanvas(self, event):
         self.selecting = True
@@ -154,17 +173,19 @@ class Application(tk.Frame):
                                 self.selection[1] * self.basezoom * 8,
                                 self.selection[2] * self.basezoom * 8,
                                 self.selection[3] * self.basezoom * 8)
-      
-        self.editimage = PixelSubset(
-                self.pixelgrid, self.selection).getTkImage(self.basezoom)
+
+        if self.clipboard is None:
+            self.editimage = tk.PhotoImage()
+        else:
+            self.editimage = self.clipboard.getTkImage(self.basezoom)
         self.editcanvas.itemconfig(self.editcanvasimage, 
                                    image=self.editimage)
 
     def rmotionimagecanvas(self, event):
         newx = math.floor(self.imagecanvas.canvasx(event.x) / 
-                          (self.basezoom * 8) + 1)
+                          (self.basezoom * 8))
         newy = math.floor(self.imagecanvas.canvasy(event.y) /
-                          (self.basezoom * 8) + 1)
+                          (self.basezoom * 8))
         
         # Stay in the grid
         newx = max(min(32, newx), 0)
@@ -186,17 +207,23 @@ class Application(tk.Frame):
                 max(self.selection[1], self.selection[3])*
                 self.basezoom*8)
 
-        self.editimage = PixelSubset(
-                self.pixelgrid, self.selection).getTkImage(self.basezoom)
-        self.editcanvas.itemconfig(self.editcanvasimage, 
-                                   image=self.editimage)
-
-    def reselecttile(self):
-        if (self.selectedx + self.multiple > 32):
-            self.selectedx = 32 - self.multiple
-        if (self.selectedy + self.multiple > 32):
-            self.selectedy = 32 - self.multiple
+    def reselecttile(self, x, y):
+        if (self.selecting):
+            self.selecting = False
+            self.imagecanvas.itemconfig(self.imagecanvasselection, outline="grey")
         
+        if (x + self.multiple > 32):
+            x = 32 - self.multiple
+        if (y + self.multiple > 32):
+            y = 32 - self.multiple
+        if (x < 0):
+            x = 0
+        if (y < 0):
+            y = 0
+
+        self.selectedx = x
+        self.selectedy = y
+
         newx = self.selectedx * self.basezoom * 8
         newy = self.selectedy * self.basezoom * 8
         self.imagecanvas.coords(self.imagecanvasselection, newx, newy,
@@ -294,6 +321,44 @@ class Application(tk.Frame):
             self.redrawimage()
         else:
             self.redraw()
+    
+    def copy(self, event):
+        self.clipboard = PixelSubset(
+                self.pixelgrid,
+                self.getCurrentSelection())
+        self.editimage = self.clipboard.getTkImage(self.basezoom)
+        self.editcanvas.itemconfig(self.editcanvasimage, 
+                                   image=self.editimage)
+
+    def paste(self, event):
+        if self.clipboard is None:
+            return
+        if (self.selecting):
+            x = min(self.selection[0], self.selection[2])
+            y = min(self.selection[1], self.selection[3])
+        else:
+            x = self.selectedx
+            y = self.selectedy
+        self.pixelgrid.mergeSubset(self.clipboard, x, y)
+        self.redraw()
+    
+    def clearclipboard(self):
+        self.clipboard = None
+
+    def getCurrentSelection(self):
+        output = [0,0,0,0]
+        if (self.selecting):
+            output[0] = min(self.selection[0], self.selection[2])
+            output[2] = max(self.selection[0], self.selection[2])
+            output[1] = min(self.selection[1], self.selection[3])
+            output[3] = max(self.selection[1], self.selection[3])
+        else:
+            # Return the current tile
+            output[0] = self.selectedx
+            output[1] = self.selectedy
+            output[2] = self.selectedx + self.multiple
+            output[3] = self.selectedy + self.multiple
+        return output
 
 root = tk.Tk()
 app = Application(master=root)

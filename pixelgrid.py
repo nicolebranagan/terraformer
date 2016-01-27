@@ -37,6 +37,16 @@ class PixelGrid:
     def clearTile(self, x, y): 
         self._tiles.pop((x,y),None)
 
+    def mergeSubset(self, subset, x, y):
+        for i in range(0, subset._width):
+            for j in range(0, subset._height):
+                if i + x <= self._width and j + y <= self._height:
+                    if (i,j) in subset._tiles:
+                        self._tiles[(i+x, j+y)] = subset._tiles[(i,j)]
+                    else:
+                        if (i+x, j+y) in self._tiles:
+                            del(self._tiles[(i+x, j+y)])
+
     def getTkImage(self, zoom):
         photo = tk.PhotoImage(width=8*self._width*zoom, 
                               height=8*self._height*zoom)
