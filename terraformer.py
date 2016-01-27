@@ -28,6 +28,7 @@ class Application(tk.Frame):
         self.master.title("Terraformer")
         
         self.master.bind("<Delete>", self.delete)
+        self.master.bind("<Control-x>", self.cut)
         self.master.bind("<Control-c>", self.copy)
         self.master.bind("<Control-v>", self.paste)
         
@@ -303,7 +304,7 @@ class Application(tk.Frame):
         self.image = self.pixelgrid.getTkImage(self.basezoom)
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
 
-    def delete(self, event):
+    def delete(self, event=None):
         if (self.selecting):
             rangex = range(min(self.selection[0],self.selection[2]),
                     max(self.selection[0], self.selection[2]))
@@ -321,8 +322,12 @@ class Application(tk.Frame):
             self.redrawimage()
         else:
             self.redraw()
-    
-    def copy(self, event):
+
+    def cut (self, event=None): 
+        self.copy()
+        self.delete()
+
+    def copy(self, event=None):
         self.clipboard = PixelSubset(
                 self.pixelgrid,
                 self.getCurrentSelection())
@@ -330,7 +335,7 @@ class Application(tk.Frame):
         self.editcanvas.itemconfig(self.editcanvasimage, 
                                    image=self.editimage)
 
-    def paste(self, event):
+    def paste(self, event=None):
         if self.clipboard is None:
             return
         if (self.selecting):
