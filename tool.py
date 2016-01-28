@@ -72,8 +72,10 @@ class Pencil(Tool):
         quickdraw(x, y, val)
         
         def rev():
+            global pixelgrid
+            global redraw
             pixelgrid.set(tilex*8 + x, tiley*8 + y, val2)
-            quickdraw(x, y, val2)
+            redraw()
 
         global undostack
         undostack.append(rev)

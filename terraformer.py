@@ -107,7 +107,7 @@ class Application(tk.Frame):
         
         # Create editing commands
         toolbox = tk.Frame(self)
-        toolbox.grid(row=1, column=3)
+        toolbox.grid(row=1, column=3, sticky=tk.N)
         pencilbutton = tk.Button(
                 toolbox, text="Pencil", 
                 command=lambda:self.changetool(tool.Pencil(False)))
@@ -387,12 +387,20 @@ class Application(tk.Frame):
     def paste(self, event=None):
         if self.clipboard is None:
             return
+
         if (self.selecting):
             x = min(self.selection[0], self.selection[2])
             y = min(self.selection[1], self.selection[3])
         else:
             x = self.selectedx
             y = self.selectedy
+        
+        block = PixelSubset(self.pixelgrid, self.getCurrentSelection())
+        def reverse():
+           self.pixelgrid.mergeSubset(block, x, y)
+           self.redraw()
+        tool.undostack.append(reverse)
+       
         self.pixelgrid.mergeSubset(self.clipboard, x, y)
         self.redraw()
     
