@@ -1,4 +1,6 @@
 from pixelgrid import *
+import math
+import copy
 
 pixelgrid = None
 quickdraw = None
@@ -34,14 +36,16 @@ class Tool:
         else:
             self._step1(tilex, tiley, x, y, val)
     
-    def step2(self, tilex, tiley, x1, y1, x2, y2, val):
-        self._step2(tilex, tiley, x1, y1, x2, y2, val)
-        undostack.append(self.reverse)
+    def step2(self, tilex, tiley, x2, y2, val):
+        self._step2(tilex, tiley, x2, y2, val)
 
     def _step1(self, tilex, tiley, x, y, val):
         pass
-    
-    def _step2(self, tilex, tiley, x1, y1, x2, y2, val):
+
+    def _move(self, tilex, tiley,x2, y2, val):
+        pass
+
+    def _step2(self, tilex, tiley, x2, y2, val):
         pass
 
     def reverse(self):
@@ -103,4 +107,89 @@ class Delete(Tool):
             for j in rangey:
                 pixelgrid.clearTile(i,j)
         
+class Rectangle(Tool):
+    def __init__(self, alternate):
+        self.twostep = True
+        self.alternate = alternate
+        self.pixel = True
+        self.block = None
+
+    def _step1(self, tilex, tiley, x, y, val):
+        self.x1 = x
+        self.y1 = y
+
+    def move(self, tilex, tiley, x2, y2, val):
+        global redraw
+        global quickdraw
         
+        x1 = self.x1
+        y1 = self.y1
+
+        if x1 == x2:
+            x2 = x2 + 1
+        elif x1 > x2:
+            x1 = x1 + 1
+        
+        if y1 == y2:
+            y2 = y2 + 1
+        elif y1 > y2:
+            y1 = y1 + 1
+        
+        mx1 = min(x2, x1)
+        my1 = min(y2, y1)
+        mx2 = max(x2, x1)
+        my2 = max(y2, y1)
+        
+        redraw()
+        for i in range(mx1, mx2):
+            for j in range(my1, my2):
+                if not self.alternate or (i + j) % 2 == 0:
+                    quickdraw(i,j,val)
+            
+    
+    def _step2(self, tilex, tiley, x2, y2, val):
+        global pixelgrid
+        global redraw
+        
+        x1 = self.x1
+        y1 = self.y1
+
+        if x1 == x2:
+            x2 = x2 + 1
+        elif x1 > x2:
+            x1 = x1 + 1
+        
+        if y1 == y2:
+            y2 = y2 + 1
+        elif y1 > y2:
+            y1 = y1 + 1
+        
+        mx1 = min(x2, x1)
+        my1 = min(y2, y1)
+        mx2 = max(x2, x1)
+        my2 = max(y2, y1)
+        
+        block = PixelSubset(
+            pixelgrid, [
+                tilex + math.floor(mx1 / 8),
+                tiley + math.floor(my1 / 8),
+                tilex + math.ceil(mx2 / 8),
+                tiley + math.ceil(my2 / 8),
+                ])
+        
+        def rev():
+            global pixelgrid
+            global redraw
+            pixelgrid.mergeSubset(block, tilex, tiley)
+            redraw()
+        undostack.append(rev)
+
+        for i in range(tilex*8 + mx1, tilex*8 + mx2):
+            for j in range(tiley*8 + my1, tiley*8 + my2):
+                if not self.alternate or (i + j) % 2 == 0:
+                    pixelgrid.set(i,j,val)
+        
+        redraw()
+
+
+

@@ -13,6 +13,7 @@ class Application(tk.Frame):
         self.selectedx = 0
         self.selectedy = 0
         self.selecting = False
+        self.midstep = False
         self.currentcolor = 0
         self.clipboard = None
 
@@ -100,7 +101,8 @@ class Application(tk.Frame):
         self.editcanvasimage = self.editcanvas.create_image(
                 0,0,anchor=tk.NW)
         self.editcanvas.bind("<Button-1>", self.clickeditcanvas)
-        self.editcanvas.bind("<B1-Motion>", self.clickeditcanvas)
+        self.editcanvas.bind("<B1-Motion>", self.motioneditcanvas)
+        self.editcanvas.bind("<ButtonRelease-1>", self.releaseeditcanvas)
         self.editcanvas.bind("<Button-3>", self.rclickeditcanvas)
         
         # Create editing commands
@@ -114,6 +116,14 @@ class Application(tk.Frame):
                 toolbox, text="Alt. P", 
                 command=lambda:self.changetool(tool.Pencil(True)))
         pencilbutton.pack()
+        rectbutton = tk.Button(
+                toolbox, text="Rect", 
+                command=lambda:self.changetool(tool.Rectangle(False)))
+        rectbutton.pack()
+        arectbutton = tk.Button(
+                toolbox, text="A. Rect", 
+                command=lambda:self.changetool(tool.Rectangle(True)))
+        arectbutton.pack()
         
         # Create palette
         self.palettecanvas = tk.Canvas(self, width=512, height=32)
@@ -228,6 +238,7 @@ class Application(tk.Frame):
                 self.basezoom*8)
 
     def reselecttile(self, x, y):
+        self.midstep = False
         if (self.selecting):
             self.selecting = False
             self.imagecanvas.itemconfig(self.imagecanvasselection, outline="grey")
@@ -270,7 +281,33 @@ class Application(tk.Frame):
         
         self.currenttool.step1(self.selectedx, self.selectedy, 
                                x, y, self.currentcolor)
+        if self.currenttool.twostep:
+            self.midstep = True
+
+    def motioneditcanvas(self, event):
+        if self.midstep:
+            x = math.floor(self.editcanvas.canvasx(event.x) // (self.basezoom *
+                256 // (8*self.multiple))) 
+            y = math.floor(self.editcanvas.canvasy(event.y) // (self.basezoom *
+                256 // (8*self.multiple)))
+            self.currenttool.move(self.selectedx, self.selectedy, 
+                                  x, y, self.currentcolor)
+        else:
+            self.clickeditcanvas(event)
     
+    def releaseeditcanvas(self, event):
+        if not self.midstep: return
+
+        x = math.floor(self.editcanvas.canvasx(event.x) // (self.basezoom *
+            256 // (8*self.multiple))) 
+        y = math.floor(self.editcanvas.canvasy(event.y) // (self.basezoom *
+            256 // (8*self.multiple)))
+        
+        self.currenttool.step2(self.selectedx, self.selectedy, 
+                               x, y, self.currentcolor)
+        self.midstep = False
+        
+
     def rclickeditcanvas(self, event):
         if (self.selecting): return
         
@@ -288,6 +325,7 @@ class Application(tk.Frame):
             self.selectcolor(i)
 
     def selectcolor(self, i):
+        self.midstep = False
         self.currentcolor = i
         self.palettecanvas.coords(self.paletteselect, i*32, 1, (i+1)*32, 32)
 
@@ -306,7 +344,10 @@ class Application(tk.Frame):
         x = x + 8*self.selectedx
         y = y + 8*self.selectedy
         zoom = self.basezoom
-        self.image.put("#%02x%02x%02x" % self.pixelgrid.palette[v],
+        
+        color = self.pixelgrid.palette[v]
+        
+        self.image.put("#%02x%02x%02x" % color,
                        to=(x*zoom, y*zoom, x*zoom + zoom, y*zoom + zoom))
         
     def redraw(self):
@@ -368,6 +409,7 @@ class Application(tk.Frame):
         return output
 
     def changetool(self, tool):
+        self.midstep = False
         self.currenttool = tool
 
 root = tk.Tk()
