@@ -108,9 +108,10 @@ class Delete(Tool):
                 pixelgrid.clearTile(i,j)
         
 class Rectangle(Tool):
-    def __init__(self, alternate):
+    def __init__(self, alternate, filled):
         self.twostep = True
         self.alternate = alternate
+        self.filled = filled 
         self.pixel = True
         self.block = None
 
@@ -140,13 +141,18 @@ class Rectangle(Tool):
         mx2 = max(x2, x1)
         my2 = max(y2, y1)
         
+        # Make sure first cell is always drawn in a dithering situation
+        todraw = (x1 + y1) % 2
+
         redraw()
         for i in range(mx1, mx2):
             for j in range(my1, my2):
-                if not self.alternate or (i + j) % 2 == 0:
+                if ((self.filled and (not self.alternate or 
+                    (self.alternate and (i + j) % 2 == todraw))) or
+                    (not self.filled and (i == mx1 or i == mx2-1 or 
+                                     j == my1 or j == my2-1))):
                     quickdraw(i,j,val)
             
-    
     def _step2(self, tilex, tiley, x2, y2, val):
         global pixelgrid
         global redraw
@@ -184,10 +190,16 @@ class Rectangle(Tool):
             redraw()
         undostack.append(rev)
 
-        for i in range(tilex*8 + mx1, tilex*8 + mx2):
-            for j in range(tiley*8 + my1, tiley*8 + my2):
-                if not self.alternate or (i + j) % 2 == 0:
-                    pixelgrid.set(i,j,val)
+        # Make sure first cell is always drawn in a dithering situation
+        todraw = (x1 + y1) % 2
+
+        for i in range(mx1, mx2):
+            for j in range(my1, my2):
+                if ((self.filled and (not self.alternate or 
+                    (self.alternate and (i + j) % 2 == todraw))) or
+                    (not self.filled and (i == mx1 or i == mx2-1 or 
+                                     j == my1 or j == my2-1))):
+                    pixelgrid.set(tilex*8 + i,tiley*8 + j,val)
         
         redraw()
 

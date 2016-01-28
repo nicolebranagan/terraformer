@@ -118,13 +118,16 @@ class Application(tk.Frame):
         pencilbutton.pack()
         rectbutton = tk.Button(
                 toolbox, text="Rect", 
-                command=lambda:self.changetool(tool.Rectangle(False)))
+                command=lambda:self.changetool(tool.Rectangle(False, True)))
         rectbutton.pack()
         arectbutton = tk.Button(
                 toolbox, text="A. Rect", 
-                command=lambda:self.changetool(tool.Rectangle(True)))
+                command=lambda:self.changetool(tool.Rectangle(True, True)))
         arectbutton.pack()
-        
+        boxbutton = tk.Button(
+            toolbox, text="Box", 
+            command=lambda:self.changetool(tool.Rectangle(False, False)))
+        boxbutton.pack()
         # Create palette
         self.palettecanvas = tk.Canvas(self, width=512, height=32)
         self.palettecanvas.grid(row=2, column=2)
@@ -337,6 +340,9 @@ class Application(tk.Frame):
         self.redraw()
 
     def quickdraw(self, x, y, v):
+        if x < 0 or y < 0:
+            return
+        
         zoom = self.basezoom * 256 // (8*self.multiple)
         self.editimage.put("#%02x%02x%02x" % self.pixelgrid.palette[v],
                            to=(x*zoom, y*zoom, x*zoom + zoom, y*zoom + zoom))
