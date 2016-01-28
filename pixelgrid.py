@@ -1,4 +1,5 @@
 import math
+import copy
 import tkinter as tk
 
 class PixelGrid:
@@ -101,7 +102,8 @@ class PixelSubset(PixelGrid):
             for j in range(0, parent._height):
                 if i >= minx and i <= maxx and j >= miny and j <= maxy:
                     if (i,j) in parent._tiles:
-                        self._tiles[(i-minx, j-miny)] = parent._tiles[(i,j)]
+                        self._tiles[(i-minx, j-miny)] = copy.deepcopy(
+                                parent._tiles[(i,j)])
 
 
 

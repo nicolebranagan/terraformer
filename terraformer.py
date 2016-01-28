@@ -3,6 +3,7 @@ import tkinter.ttk as ttk
 import math
 
 import palette
+import tool
 from pixelgrid import *
 
 class Application(tk.Frame):
@@ -15,6 +16,7 @@ class Application(tk.Frame):
         self.currentcolor = 0
         self.clipboard = None
 
+        self.currenttool = tool.Pencil()
         self.pack()
         self.configure()
         self.createWidgets()
@@ -31,7 +33,9 @@ class Application(tk.Frame):
         self.master.bind("<Control-x>", self.cut)
         self.master.bind("<Control-c>", self.copy)
         self.master.bind("<Control-v>", self.paste)
-        
+       
+        self.master.bind("<Control-z>", tool.undo)
+
         self.master.bind("<Left>", lambda x: self.reselecttile(
                     self.selectedx-self.multiple, self.selectedy))
         self.master.bind("<Right>", lambda x: self.reselecttile(
@@ -50,6 +54,9 @@ class Application(tk.Frame):
         menubar.add_cascade(label="File", menu=filemenu)
         
         editmenu = tk.Menu(menubar)
+        editmenu.add_command(label="Undo", command=tool.undo)
+        editmenu.add_separator()
+        editmenu.add_command(label="Cut", command=self.cut)
         editmenu.add_command(label="Copy", command=self.copy)
         editmenu.add_command(label="Paste", command=self.paste)
         editmenu.add_command(label="Clear clipboard", 
@@ -109,6 +116,7 @@ class Application(tk.Frame):
     def newFile(self):
         # Create new photoimage
         self.pixelgrid = PixelGrid(palette.ega)
+        tool.initialize(self.pixelgrid, self.quickdraw, self.redraw)
         self.drawpalette()
         self.image = self.pixelgrid.getTkImage(self.basezoom)
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
@@ -248,10 +256,9 @@ class Application(tk.Frame):
 
         if (x < 0 or y < 0 or x >= self.multiple * 8 or y >= self.multiple * 8):
             return
-
-        self.pixelgrid.set(self.selectedx * 8 + x, self.selectedy * 8 + y, 
-                           self.currentcolor)
-        self.quickdraw(x, y, self.currentcolor)
+        
+        self.currenttool.step1(self.selectedx, self.selectedy, 
+                               x, y, self.currentcolor)
     
     def rclickeditcanvas(self, event):
         if (self.selecting): return
@@ -305,19 +312,9 @@ class Application(tk.Frame):
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
 
     def delete(self, event=None):
-        if (self.selecting):
-            rangex = range(min(self.selection[0],self.selection[2]),
-                    max(self.selection[0], self.selection[2]))
-            rangey = range(min(self.selection[1],self.selection[3]),
-                    max(self.selection[1], self.selection[3]))
-        else:
-            rangex = range(self.selectedx, self.selectedx + self.multiple)
-            rangey = range(self.selectedy, self.selectedx + self.multiple)
-        
-        for i in rangex:
-            for j in rangey:
-                self.pixelgrid.clearTile(i,j)
-        
+        select = self.getCurrentSelection()
+        tool.Delete().step1(select[0], select[1], select[2], select[3], 0)
+
         if self.selecting:
             self.redrawimage()
         else:
