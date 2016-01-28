@@ -299,26 +299,20 @@ class Application(tk.Frame):
                        to=(x*zoom, y*zoom, x*zoom + zoom, y*zoom + zoom))
         
     def redraw(self):
-        self.redrawimage()
-        self.editimage = self.pixelgrid.getTkSubset(
-                self.basezoom * (256 // (8*self.multiple)),
-                self.selectedx, self.selectedy, 
-                self.multiple)
-        self.editcanvas.itemconfig(self.editcanvasimage, 
-                                   image=self.editimage)
-
-    def redrawimage(self):
         self.image = self.pixelgrid.getTkImage(self.basezoom)
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
+        if not self.selecting:
+            self.editimage = self.pixelgrid.getTkSubset(
+                    self.basezoom * (256 // (8*self.multiple)),
+                    self.selectedx, self.selectedy, 
+                    self.multiple)
+            self.editcanvas.itemconfig(self.editcanvasimage, 
+                                       image=self.editimage)
 
     def delete(self, event=None):
         select = self.getCurrentSelection()
         tool.Delete().step1(select[0], select[1], select[2], select[3], 0)
-
-        if self.selecting:
-            self.redrawimage()
-        else:
-            self.redraw()
+        self.redraw()
 
     def cut (self, event=None): 
         self.copy()
