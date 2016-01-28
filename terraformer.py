@@ -16,7 +16,7 @@ class Application(tk.Frame):
         self.currentcolor = 0
         self.clipboard = None
 
-        self.currenttool = tool.Pencil()
+        self.currenttool = tool.Pencil(False)
         self.pack()
         self.configure()
         self.createWidgets()
@@ -33,7 +33,6 @@ class Application(tk.Frame):
         self.master.bind("<Control-x>", self.cut)
         self.master.bind("<Control-c>", self.copy)
         self.master.bind("<Control-v>", self.paste)
-       
         self.master.bind("<Control-z>", tool.undo)
 
         self.master.bind("<Left>", lambda x: self.reselecttile(
@@ -97,16 +96,28 @@ class Application(tk.Frame):
 
         # Create canvas for editing
         self.editcanvas = tk.Canvas(self, width=512, height=512)
-        self.editcanvas.grid(row=1, column=1)
+        self.editcanvas.grid(row=1, column=2)
         self.editcanvasimage = self.editcanvas.create_image(
                 0,0,anchor=tk.NW)
         self.editcanvas.bind("<Button-1>", self.clickeditcanvas)
         self.editcanvas.bind("<B1-Motion>", self.clickeditcanvas)
         self.editcanvas.bind("<Button-3>", self.rclickeditcanvas)
-
+        
+        # Create editing commands
+        toolbox = tk.Frame(self)
+        toolbox.grid(row=1, column=3)
+        pencilbutton = tk.Button(
+                toolbox, text="Pencil", 
+                command=lambda:self.changetool(tool.Pencil(False)))
+        pencilbutton.pack()
+        pencilbutton = tk.Button(
+                toolbox, text="Alt. P", 
+                command=lambda:self.changetool(tool.Pencil(True)))
+        pencilbutton.pack()
+        
         # Create palette
         self.palettecanvas = tk.Canvas(self, width=512, height=32)
-        self.palettecanvas.grid(row=2, column=1)
+        self.palettecanvas.grid(row=2, column=2)
         self.paletteimage = self.palettecanvas.create_image(
                 0, 0, anchor=tk.NW)
         self.paletteselect = self.palettecanvas.create_rectangle(
@@ -355,6 +366,9 @@ class Application(tk.Frame):
             output[2] = self.selectedx + self.multiple
             output[3] = self.selectedy + self.multiple
         return output
+
+    def changetool(self, tool):
+        self.currenttool = tool
 
 root = tk.Tk()
 app = Application(master=root)

@@ -48,12 +48,15 @@ class Tool:
         pass
 
 class Pencil(Tool):
-    def __init__(self):
+    def __init__(self, alternate):
         self.twostep = False
+        self.alternate = alternate
         self.pixel = True
         self.last = (-1, -1, -1)
 
     def _step1(self, tilex, tiley, x, y, val):
+        if self.alternate and (x + y) % 2 == 1:
+            return
         val2 = pixelgrid.get(tilex*8 + x, tiley*8 + y)
         newlast = (tilex*8 + x, tiley*8 + y, val)
         if val == val2:
