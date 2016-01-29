@@ -213,5 +213,54 @@ class Rectangle(Tool):
         
         redraw()
 
+class Line(Tool):
+    def __init__(self):
+        self.twostep = True
+        self.pixel = True
+
+    def _step1(self, tilex, tiley, x, y, val):
+        self.x1 = x
+        self.y1 = y
+
+    def move(self, tilex, tiley, x2, y2, val):
+        redraw()
+        self.approximate_line(lambda x,y: quickdraw(x, y, val),
+                              x2, y2)
+
+    def _step2(self, tilex, tiley, x2, y2, val):
+        undoblock([ tilex + math.floor(min(self.x1, x2)/8),
+                    tiley + math.floor(min(self.y1, y2)/8),
+                    tilex + math.ceil(max(self.x1, x2)/8),
+                    tiley + math.ceil(max(self.y1, y2)/8) ])
+        def draw_point(x,y):
+            quickdraw(x, y, val)
+            pixelgrid.set(tilex*8 + x, tiley*8 + y, val)
+        
+        self.approximate_line(draw_point, x2, y2)
+        redraw()
+
+    def approximate_line(self, func, x2, y2):
+        if x2 == self.x1:
+            # Straight line
+            for y in range(self.y1, y2):
+                func(x2, y)
+            return
+
+        # Bresenham algorithm
+        delx = x2 - self.x1
+        dely = y2 - self.y1
+        error = 0.0
+        err = abs(dely / delx)
+        y = self.y1
+        yshift = math.floor(math.copysign(1, y2-self.y1))
+        xshift = math.floor(math.copysign(1, x2-self.x1))
+
+        for x in range(self.x1, x2, xshift):
+            func(x,y)
+            error = error + err
+            while error >= 0.5:
+                func(x,y)
+                y = y + yshift
+                error = error - 1.0
 
 

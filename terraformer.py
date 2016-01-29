@@ -116,6 +116,10 @@ class Application(tk.Frame):
                 toolbox, text="Alt. P", 
                 command=lambda:self.changetool(tool.Pencil(True)))
         pencilbutton.pack()
+        linebutton = tk.Button(
+                toolbox, text="Line", 
+                command=lambda:self.changetool(tool.Line()))
+        linebutton.pack()
         rectbutton = tk.Button(
                 toolbox, text="Rect", 
                 command=lambda:self.changetool(tool.Rectangle(False, True)))
