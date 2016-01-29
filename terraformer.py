@@ -136,6 +136,7 @@ class Application(tk.Frame):
         self.paletteselect = self.palettecanvas.create_rectangle(
                 1, 1, 32, 32, outline="red")
         self.palettecanvas.bind("<Button-1>", self.clickpalettecanvas)
+        self.palettecanvas.bind("<Button-3>", self.rclickpalettecanvas)
 
     def newFile(self):
         # Create new photoimage
@@ -327,6 +328,14 @@ class Application(tk.Frame):
         if i < len(self.pixelgrid.palette):
             self.selectcolor(i)
 
+    def rclickpalettecanvas(self, event):
+        i = math.floor(self.palettecanvas.canvasx(event.x) // 32)
+        if i < len(self.pixelgrid.palette):
+            tool.undoblock(self.getCurrentSelection())
+            self.pixelgrid.flipColors(self.currentcolor, i,
+                                      self.getCurrentSelection())
+            self.redraw()
+
     def selectcolor(self, i):
         self.midstep = False
         self.currentcolor = i
@@ -395,12 +404,7 @@ class Application(tk.Frame):
             x = self.selectedx
             y = self.selectedy
         
-        block = PixelSubset(self.pixelgrid, self.getCurrentSelection())
-        def reverse():
-           self.pixelgrid.mergeSubset(block, x, y)
-           self.redraw()
-        tool.undostack.append(reverse)
-       
+        tool.undoblock(self.getCurrentSelection())
         self.pixelgrid.mergeSubset(self.clipboard, x, y)
         self.redraw()
     

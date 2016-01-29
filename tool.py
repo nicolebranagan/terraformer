@@ -22,6 +22,14 @@ def undo(event=None):
         f = undostack.pop()
         f()
 
+def undoblock(selection):
+    global pixelgrid
+    block = PixelSubset(pixelgrid, selection)
+    def reverse():
+        pixelgrid.mergeSubset(block, selection[0], selection[1])
+        redraw()
+    undostack.append(reverse)
+
 class Tool:
     def __init__(self):
         # Does the tool take two steps to complete?

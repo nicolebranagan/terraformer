@@ -47,6 +47,15 @@ class PixelGrid:
                     else:
                         if (i+x, j+y) in self._tiles:
                             del(self._tiles[(i+x, j+y)])
+    
+    def flipColors(self, val1, val2, s):
+        for i in range(s[0], s[2]):
+            for j in range(s[1], s[3]):
+                if (i,j) in self._tiles:
+                    self._tiles[(i,j)].flip(val1, val2)
+                elif val1 == 0:
+                    self._tiles[(i, j)] = PixelTile(val2)
+
 
     def getTkImage(self, zoom):
         photo = tk.PhotoImage(width=8*self._width*zoom, 
@@ -75,16 +84,19 @@ class PixelGrid:
         return photo
 
 class PixelTile:
-    def __init__(self):
+    def __init__(self, fill=0):
         self._width = 8
         self._height = 8
-        self._pixels = [0 for x in range(self._width * self._height)]
+        self._pixels = [fill for x in range(self._width * self._height)]
 
     def get(self, x, y):
         return self._pixels[x + y*self._width]
 
     def set(self, x, y, val):
         self._pixels[x + y*self._width] = val
+
+    def flip(self, val1, val2):
+        self._pixels = [val2 if x == val1 else x for x in self._pixels]
 
 class PixelSubset(PixelGrid):
     def __init__(self, parent, selection):
