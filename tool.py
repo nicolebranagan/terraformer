@@ -1,6 +1,7 @@
 from pixelgrid import *
 import math
 import copy
+import queue
 
 pixelgrid = None
 quickdraw = None
@@ -27,6 +28,15 @@ def undoblock(selection):
     block = PixelSubset(pixelgrid, selection)
     def reverse():
         pixelgrid.mergeSubset(block, selection[0], selection[1])
+        redraw()
+    undostack.append(reverse)
+
+def undoscreen():
+    global pixelgrid
+    oldgrid = copy.deepcopy(pixelgrid)
+    def reverse():
+        global pixelgrid
+        pixelgrid.mergeSubset(oldgrid,0,0)
         redraw()
     undostack.append(reverse)
 
@@ -208,7 +218,7 @@ class Rectangle(Tool):
                 if ((self.filled and (not self.alternate or 
                     (self.alternate and (i + j) % 2 == todraw))) or
                     (not self.filled and (i == mx1 or i == mx2-1 or 
-                                     j == my1 or j == my2-1))):
+                                          j == my1 or j == my2-1))):
                     pixelgrid.set(tilex*8 + i,tiley*8 + j,val)
         
         redraw()
@@ -278,4 +288,32 @@ class Shifter:
         block.shift(self.dx, self.dy)
         pixelgrid.mergeSubset(block, selection[0], selection[1])
         redraw()
+
+class Fill(Tool):
+    def __init__(self):
+        self.twostep = False
+        self.pixel = True
+
+    def _step1(self, tilex, tiley, x, y, val):
+        global pixelgrid
+        undoscreen()
+        val0 = pixelgrid.get(tilex*8 + x, tiley*8 + y)
+        val1 = val0
+        x = tilex*8 + x
+        y = tiley*8 + y
+        edge = [(x,y)]
+        pixelgrid.set(x, y, val)
+        while True:
+            newedge = []
+            for (x,y) in edge:
+                for (i,j) in ((x+1, y), (x-1, y), (x, y+1), (x, y-1)):
+                    if pixelgrid.bounds(i,j) and \
+                        pixelgrid.get(i,j) == val0:
+                        pixelgrid.set(i,j,val)
+                        newedge.append((i,j))
+            edge = newedge
+            if len(edge) == 0 or len(edge)>500:
+                break
+        redraw()
+            
 

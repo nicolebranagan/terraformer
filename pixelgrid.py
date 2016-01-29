@@ -43,6 +43,10 @@ class PixelGrid:
     def clearTile(self, x, y): 
         self._tiles.pop((x,y),None)
 
+    def bounds(self, x, y):
+        return (x >= 0 and x < 8*self._width and 
+                y >= 0 and y < 8*self._height)
+
     def mergeSubset(self, subset, x, y):
         for i in range(0, subset._width):
             for j in range(0, subset._height):

@@ -151,6 +151,10 @@ class Application(tk.Frame):
             toolbox, text="Box", 
             command=lambda:self.changetool(tool.Rectangle(False, False)))
         boxbutton.pack()
+        fillbutton = tk.Button(
+            toolbox, text="Fill", 
+            command=lambda:self.changetool(tool.Fill()))
+        fillbutton.pack()
         
         # Create zoom
         self.multiplescale = ttk.Scale(self, from_=1.0, to=8.0,
