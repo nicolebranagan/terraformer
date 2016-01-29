@@ -76,11 +76,30 @@ class Application(tk.Frame):
         debugmenu.add_command(label="Redraw", command=self.redraw)
         menubar.add_cascade(label="Debug", menu=debugmenu)
         
-        # Create zoom
-        self.multiplescale = ttk.Scale(self, from_=1.0, to=8.0,
-                                      orient=tk.HORIZONTAL,
-                                      command=self.resetscale)
-        self.multiplescale.grid(row=0, column=0)
+        # Shifters
+        shiftframe = tk.Frame(self)
+        shiftframe.grid(row=0, column=0)
+        shiftupbutton = tk.Button(
+                shiftframe, text="^", 
+                command=lambda:tool.Shifter(0,-1).step1(
+                    self.getCurrentSelection()))
+        shiftupbutton.grid(row=0, column=0)
+        shiftdownbutton = tk.Button(
+                shiftframe, text="v", 
+                command=lambda:tool.Shifter(0,1).step1(
+                    self.getCurrentSelection()))
+        shiftdownbutton.grid(row=0, column=1)
+        shiftleftbutton = tk.Button(
+                shiftframe, text="<", 
+                command=lambda:tool.Shifter(-1,0).step1(
+                    self.getCurrentSelection()))
+        shiftleftbutton.grid(row=0, column=2)
+        shiftrightbutton = tk.Button(
+                shiftframe, text=">", 
+                command=lambda:tool.Shifter(1,0).step1(
+                    self.getCurrentSelection()))
+        shiftrightbutton.grid(row=0, column=3)
+        
 
         # Create canvas for larger view
         self.imagecanvas = tk.Canvas(self, width=512, height=512)
@@ -132,6 +151,13 @@ class Application(tk.Frame):
             toolbox, text="Box", 
             command=lambda:self.changetool(tool.Rectangle(False, False)))
         boxbutton.pack()
+        
+        # Create zoom
+        self.multiplescale = ttk.Scale(self, from_=1.0, to=8.0,
+                                      orient=tk.HORIZONTAL,
+                                      command=self.resetscale)
+        self.multiplescale.grid(row=2, column=0)
+        
         # Create palette
         self.palettecanvas = tk.Canvas(self, width=512, height=32)
         self.palettecanvas.grid(row=2, column=2)
@@ -150,6 +176,7 @@ class Application(tk.Frame):
         self.image = self.pixelgrid.getTkImage(self.basezoom)
         self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
         self.reselecttile(self.selectedx, self.selectedy)
+        self.multiplescale.set(2.0)
 
     def drawpalette(self):
         self.palette = tk.PhotoImage(width=512, height=32)

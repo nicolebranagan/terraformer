@@ -263,4 +263,19 @@ class Line(Tool):
                 y = y + yshift
                 error = error - 1.0
 
+class Shifter:
+    def __init__(self, dx, dy):
+        self.twostep = False
+        self.pixel = False
+        self.dx = dx
+        self.dy = dy
+
+    def step1(self, selection):
+        global pixelgrid
+        global redraw
+        undoblock(selection)
+        block = PixelSubset(pixelgrid, selection)
+        block.shift(self.dx, self.dy)
+        pixelgrid.mergeSubset(block, selection[0], selection[1])
+        redraw()
 

@@ -10,14 +10,17 @@ class PixelGrid:
         self._tiles = {}
         self.palette = palette
 
-    def get(self, x, y):
+    def get(self, x, y, tileset=None):
+        if tileset is None:
+            tileset = self._tiles
+
         tilex = x // 8
         tiley = y // 8
         relx = x - tilex*8
         rely = y - tiley*8
         
-        if ( (tilex, tiley) in self._tiles):
-            return self._tiles[(tilex,tiley)].get(relx, rely)
+        if ( (tilex, tiley) in tileset):
+            return tileset[(tilex,tiley)].get(relx, rely)
         else:
             return 0
 
@@ -25,6 +28,9 @@ class PixelGrid:
         return self.palette[self.get(x,y)]
 
     def set(self, x, y, val):
+        if x < 0 or x >= self._width*8 or y < 0 or y >= self._height*8:
+            return
+
         tilex = x // 8
         tiley = y // 8
         relx = x - tilex*8
@@ -32,7 +38,6 @@ class PixelGrid:
 
         if ( (tilex, tiley) not in self._tiles):
             self._tiles[(tilex,tiley)] = PixelTile()
-
         self._tiles[(tilex,tiley)].set(relx, rely, val)
 
     def clearTile(self, x, y): 
@@ -55,6 +60,17 @@ class PixelGrid:
                     self._tiles[(i,j)].flip(val1, val2)
                 elif val1 == 0:
                     self._tiles[(i, j)] = PixelTile(val2)
+    
+    def shift(self, dx, dy):
+        oldtiles = copy.deepcopy(self._tiles)
+        
+        for i in range(0, 8*self._width):
+            for j in range(0, 8*self._height):
+                x = (i - dx) % (8*self._width)
+                y = (j - dy) % (8*self._height)
+                 
+                if (self.get(x, y, oldtiles) != self.get(i,j, oldtiles)):
+                    self.set(i,j,self.get(x,y,oldtiles))
 
 
     def getTkImage(self, zoom):
@@ -93,6 +109,7 @@ class PixelTile:
         return self._pixels[x + y*self._width]
 
     def set(self, x, y, val):
+        i = x+y*self._width
         self._pixels[x + y*self._width] = val
 
     def flip(self, val1, val2):
