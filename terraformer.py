@@ -155,6 +155,14 @@ class Application(tk.Frame):
             toolbox, text="Box", 
             command=lambda:self.changetool(tool.Rectangle(False, False)))
         boxbutton.pack()
+        circbutton = tk.Button(
+                toolbox, text="Circle", 
+                command=lambda:self.changetool(tool.Circle()))
+        circbutton.pack()
+        fcircbutton = tk.Button(
+                toolbox, text="Circle", 
+                command=lambda:self.changetool(tool.FilledCircle()))
+        fcircbutton.pack()
         fillbutton = tk.Button(
             toolbox, text="Fill", 
             command=lambda:self.changetool(tool.Fill()))

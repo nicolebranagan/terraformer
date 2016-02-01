@@ -316,4 +316,83 @@ class Fill(Tool):
                 break
         redraw()
             
+class Circle(Tool):
+    def __init__(self):
+        self.twostep = True
+        self.pixel = True
 
+    def _step1(self, tilex, tiley, x, y, val):
+        self.x1 = x
+        self.y1 = y
+
+    def move(self, tilex, tiley, x2, y2, val):
+        redraw()
+        self.approximate_circ(lambda x,y: quickdraw(x, y, val),
+                              x2, y2)
+
+    def _step2(self, tilex, tiley, x2, y2, val):
+        undoblock([ tilex + math.floor(min(self.x1, x2)/8),
+                    tiley + math.floor(min(self.y1, y2)/8),
+                    tilex + math.ceil(max(self.x1, x2)/8),
+                    tiley + math.ceil(max(self.y1, y2)/8) ])
+        def draw_point(x,y):
+            quickdraw(x, y, val)
+            pixelgrid.set(tilex*8 + x, tiley*8 + y, val)
+        
+        self.approximate_circ(draw_point, x2, y2)
+        redraw()
+
+    def approximate_circ(self, func, x2, y2):
+        x_1 = min(self.x1, x2)
+        y_1 = min(self.y1, y2)
+        x_2 = max(self.x1, x2)
+        y_2 = max(self.y1, y2)
+        xdiam = x_2 - x_1
+        ydiam = y_2 - y_1
+        diam = max(xdiam, ydiam)
+        r = round(diam/2)
+        xc = x_1 + r
+        yc = y_1 + r
+        r2 = r*r
+        
+        x = 0
+        y = round(math.sqrt(r2 - x*x) + 0.5)
+        
+        while x < y:
+            func(xc+x, yc+y)
+            func(xc+x, yc-y)
+            func(xc-x, yc+y)
+            func(xc-x, yc-y)
+            func(xc+y, yc+x)
+            func(xc+y, yc-x)
+            func(xc-y, yc+x)
+            func(xc-y, yc-x)
+            x = x + 1
+            y = round(math.sqrt(r2 - x*x) + 0.5)
+        if x == y:
+            func(xc + x, yc + y)
+            func(xc + x, yc - y)
+            func(xc - x, yc + y)
+            func(xc - x, yc - y)
+
+class FilledCircle(Circle):
+    def approximate_circ(self, func, x2, y2):
+        x_1 = min(self.x1, x2)
+        y_1 = min(self.y1, y2)
+        x_2 = max(self.x1, x2)
+        y_2 = max(self.y1, y2)
+        xdiam = x_2 - x_1
+        ydiam = y_2 - y_1
+        diam = max(xdiam, ydiam)
+        r = round(diam/2)
+        xc = x_1 + r
+        yc = y_1 + r
+        r2 = r*r
+        
+        for x in range(0, r):
+            for y in range(0, r):
+                if (x*x + y*y) < r*r:
+                    func(xc+x, yc+y)
+                    func(xc-x, yc+y)
+                    func(xc+x, yc-y)
+                    func(xc-x, yc-y)
