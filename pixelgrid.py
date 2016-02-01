@@ -103,6 +103,33 @@ class PixelGrid:
                         to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
         return photo
 
+    def dump(self):
+        output = {}
+        output["version"] = 0.0 # just in case we need it later
+        output["width"] = self._width
+        output["height"] = self._height
+        output["palette"] = self.palette
+
+        for c in self._tiles:
+            st = "".join((str(c[0]),",",str(c[1])))
+            output[st] = self._tiles[c].dump()
+
+        return output
+
+    def load(self, info):
+        self._tiles = {}
+        self._width = int(info["width"])
+        self._height = int(info["height"])
+        self.palette = tuple([tuple(x) for x in info["palette"]])
+
+        for tile in info:
+            num = tile.split(",")
+            if len(num) != 2:
+                break
+            loc = (int(num[0]),int(num[1]))
+            self._tiles[loc] = PixelTile().load(info[tile])
+        
+
 class PixelTile:
     def __init__(self, fill=0):
         self._width = 8
@@ -118,6 +145,13 @@ class PixelTile:
 
     def flip(self, val1, val2):
         self._pixels = [val2 if x == val1 else x for x in self._pixels]
+
+    def dump(self):
+        return self._pixels
+
+    def load(self, pixels):
+        self._pixels = pixels
+        return self
 
 class PixelSubset(PixelGrid):
     def __init__(self, parent, selection):

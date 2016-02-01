@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import filedialog
 import math
+import json
 
 import palette
 import tool
@@ -51,7 +52,8 @@ class Application(tk.Frame):
         self.master.config(menu=menubar)
 
         filemenu = tk.Menu(menubar)
-        filemenu.add_command(label="Open")
+        filemenu.add_command(label="Open", command=self.open)
+        filemenu.add_command(label="Save", command=self.save)
         filemenu.add_command(label="Export", command=self.export)
         menubar.add_cascade(label="File", menu=filemenu)
         
@@ -467,13 +469,35 @@ class Application(tk.Frame):
         self.midstep = False
         self.currenttool = tool
 
+    def open(self):
+        filen = filedialog.askopenfilename(
+                filetypes=(("Terraformer images", "*.terra"),
+                           ("All files", "*")),
+                title="Open paletted image")
+        if filen != ():
+            with open(filen, "r") as fileo:
+                self.pixelgrid.load(json.load(fileo))
+                self.drawpalette()
+                self.redraw()
+
+    def save(self):
+        grid = self.pixelgrid.dump()
+        filen = filedialog.asksaveasfilename(
+                defaultextension=".terra",
+                initialfile="image.terra",
+                filetypes=(("Terraformer images", "*.terra"),
+                           ("All files", "*")),
+                title="Save paletted image to file")
+        if filen != ():
+            with open(filen, "w") as fileo:
+                json.dump(grid, fileo)
+
     def export(self):
         filen = filedialog.asksaveasfilename(
                 defaultextension=".png",
                 title="Export to file")
-        if filen is None:
-            return
-        self.pixelgrid.getTkImage(1).write(filen)
+        if filen != ():
+            self.pixelgrid.getTkImage(1).write(filen)
 
 root = tk.Tk()
 app = Application(master=root)
