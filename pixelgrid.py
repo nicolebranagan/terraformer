@@ -125,7 +125,7 @@ class PixelGrid:
         for tile in info:
             num = tile.split(",")
             if len(num) != 2:
-                break
+                continue
             loc = (int(num[0]),int(num[1]))
             self._tiles[loc] = PixelTile().load(info[tile])
         
