@@ -131,40 +131,49 @@ class Application(tk.Frame):
         # Create editing commands
         toolbox = tk.Frame(self)
         toolbox.grid(row=1, column=3, sticky=tk.N)
+        self.toolboximages = [tk.PhotoImage(file="./images/pencil.gif"),
+                              tk.PhotoImage(file="./images/apencil.gif"),
+                              tk.PhotoImage(file="./images/line.gif"),
+                              tk.PhotoImage(file="./images/rect.gif"),
+                              tk.PhotoImage(file="./images/arect.gif"),
+                              tk.PhotoImage(file="./images/box.gif"),
+                              tk.PhotoImage(file="./images/circ.gif"),
+                              tk.PhotoImage(file="./images/bcirc.gif"),
+                              tk.PhotoImage(file="./images/fill.gif")]
         pencilbutton = tk.Button(
-                toolbox, text="Pencil", 
-                command=lambda:self.changetool(tool.Pencil(False)))
+            toolbox, image=self.toolboximages[0], width=24, height=24, 
+            command=lambda:self.changetool(tool.Pencil(False)))
         pencilbutton.pack()
         pencilbutton = tk.Button(
-                toolbox, text="Alt. P", 
-                command=lambda:self.changetool(tool.Pencil(True)))
+            toolbox, image=self.toolboximages[1], width=24, height=24,  
+            command=lambda:self.changetool(tool.Pencil(True)))
         pencilbutton.pack()
         linebutton = tk.Button(
-                toolbox, text="Line", 
-                command=lambda:self.changetool(tool.Line()))
+            toolbox, image=self.toolboximages[2], width=24, height=24, 
+            command=lambda:self.changetool(tool.Line()))
         linebutton.pack()
         rectbutton = tk.Button(
-                toolbox, text="Rect", 
-                command=lambda:self.changetool(tool.Rectangle(False, True)))
+            toolbox, image=self.toolboximages[3], width=24, height=24,  
+            command=lambda:self.changetool(tool.Rectangle(False, True)))
         rectbutton.pack()
         arectbutton = tk.Button(
-                toolbox, text="A. Rect", 
-                command=lambda:self.changetool(tool.Rectangle(True, True)))
+            toolbox, image=self.toolboximages[4], width=24, height=24,  
+              command=lambda:self.changetool(tool.Rectangle(True, True)))
         arectbutton.pack()
         boxbutton = tk.Button(
-            toolbox, text="Box", 
+            toolbox, image=self.toolboximages[5], width=24, height=24,  
             command=lambda:self.changetool(tool.Rectangle(False, False)))
         boxbutton.pack()
         circbutton = tk.Button(
-                toolbox, text="Circle", 
-                command=lambda:self.changetool(tool.Circle()))
+            toolbox, image=self.toolboximages[6], width=24, height=24,  
+            command=lambda:self.changetool(tool.Circle()))
         circbutton.pack()
         fcircbutton = tk.Button(
-                toolbox, text="Circle", 
-                command=lambda:self.changetool(tool.FilledCircle()))
+            toolbox, image=self.toolboximages[7], width=24, height=24,  
+            command=lambda:self.changetool(tool.FilledCircle()))
         fcircbutton.pack()
         fillbutton = tk.Button(
-            toolbox, text="Fill", 
+            toolbox, image=self.toolboximages[8], width=24, height=24,  
             command=lambda:self.changetool(tool.Fill()))
         fillbutton.pack()
         
