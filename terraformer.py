@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import filedialog
 import math
 
 import palette
@@ -51,6 +52,7 @@ class Application(tk.Frame):
 
         filemenu = tk.Menu(menubar)
         filemenu.add_command(label="Open")
+        filemenu.add_command(label="Export", command=self.export)
         menubar.add_cascade(label="File", menu=filemenu)
         
         editmenu = tk.Menu(menubar)
@@ -464,6 +466,14 @@ class Application(tk.Frame):
     def changetool(self, tool):
         self.midstep = False
         self.currenttool = tool
+
+    def export(self):
+        filen = filedialog.asksaveasfilename(
+                defaultextension=".png",
+                title="Export to file")
+        if filen is None:
+            return
+        self.pixelgrid.getTkImage(1).write(filen)
 
 root = tk.Tk()
 app = Application(master=root)
