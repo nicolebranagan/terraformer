@@ -118,9 +118,10 @@ class PixelGrid:
         output["height"] = self._height
         output["palette"] = self.palette
 
+        output["tiles"] = {}
         for c in self._tiles:
             st = "".join((str(c[0]),",",str(c[1])))
-            output[st] = self._tiles[c].dump()
+            output["tiles"][st] = self._tiles[c].dump()
 
         return output
 
@@ -130,12 +131,12 @@ class PixelGrid:
         self._height = int(info["height"])
         self.palette = tuple([tuple(x) for x in info["palette"]])
 
-        for tile in info:
+        for tile in info["tiles"]:
             num = tile.split(",")
             if len(num) != 2:
                 continue
             loc = (int(num[0]),int(num[1]))
-            self._tiles[loc] = PixelTile().load(info[tile])
+            self._tiles[loc] = PixelTile().load(info["tiles"][tile])
         
 
 class PixelTile:
