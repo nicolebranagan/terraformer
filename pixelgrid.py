@@ -129,7 +129,7 @@ class PixelGrid:
         self._tiles = {}
         self._width = int(info["width"])
         self._height = int(info["height"])
-        self.palette = tuple([tuple(x) for x in info["palette"]])
+        self.palette = [tuple(x) for x in info["palette"]]
 
         for tile in info["tiles"]:
             num = tile.split(",")
