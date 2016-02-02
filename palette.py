@@ -1,3 +1,6 @@
+from enum import Enum
+import math
+
 ega = [
     (0,0,0),
     (0,0,170),
@@ -34,3 +37,17 @@ win16 = [
     (255,255,0),
     (255,255,255)]
 
+class Constraint(Enum):
+    Genesis = 0
+    
+def constrain(l, c):
+    constrainfunc = {
+        Constraint.Genesis : _constrain_genesis,
+        }.get(c,lambda x: None)
+    for i in range(0, len(l)):
+        l[i] = constrainfunc(l[i])
+
+def _constrain_genesis(c):
+    return (math.floor(c[0]/32)*32,
+            math.floor(c[1]/32)*32,
+            math.floor(c[2]/32)*32)

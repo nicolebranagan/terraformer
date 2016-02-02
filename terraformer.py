@@ -53,9 +53,12 @@ class Application(tk.Frame):
         self.master.config(menu=menubar)
 
         filemenu = tk.Menu(menubar)
-        filemenu.add_command(label="Open", command=self.open)
-        filemenu.add_command(label="Save", command=self.save)
-        filemenu.add_command(label="Export", command=self.export)
+        filemenu.add_command(label="Open Terraformer File", command=self.open)
+        filemenu.add_command(label="Save Terraformer File", command=self.save)
+        filemenu.add_separator()
+        filemenu.add_command(label="Export to PNG", command=self.export)
+        filemenu.add_separator()
+        filemenu.add_command(label="Exit", command=exit)
         menubar.add_cascade(label="File", menu=filemenu)
         
         editmenu = tk.Menu(menubar)
@@ -69,12 +72,22 @@ class Application(tk.Frame):
         menubar.add_cascade(label="Edit", menu=editmenu)
 
         palettemenu = tk.Menu(menubar)
-        palettemenu.add_command(
+        palette1menu = tk.Menu(palettemenu)
+        palette1menu.add_command(
                 label="EGA",
                 command=lambda: self.setpalette(palette.ega))
-        palettemenu.add_command(
+        palette1menu.add_command(
                 label="Windows 16-color",
                 command=lambda: self.setpalette(palette.win16))
+        palettemenu.add_cascade(label="Predefined palettes", 
+                                menu=palette1menu)
+        palette2menu = tk.Menu(palettemenu)
+        palette2menu.add_command(
+                label="Genesis",
+                command=lambda: self.constrainpalette(
+                    palette.Constraint.Genesis)) 
+        palettemenu.add_cascade(label="Constrain palette",
+                                menu=palette2menu)
         menubar.add_cascade(label="Palette", menu=palettemenu)
 
         debugmenu = tk.Menu(menubar)
@@ -219,7 +232,7 @@ class Application(tk.Frame):
 
     def newFile(self):
         # Create new photoimage
-        self.pixelgrid = PixelGrid(palette.ega)
+        self.pixelgrid = PixelGrid(palette.ega[:])
         tool.initialize(self.pixelgrid, self.quickdraw, self.redraw)
         self.drawpalette()
         self.image = self.pixelgrid.getTkImage(self.basezoom)
@@ -424,8 +437,6 @@ class Application(tk.Frame):
             if color[0] is None:
                 return
             newcolor = (int(color[0][0]),int(color[0][1]),int(color[0][2]))
-            if type(self.pixelgrid.palette) is tuple:
-                self.pixelgrid.palette = list(self.pixelgrid.palette)
             self.pixelgrid.palette[i] = newcolor
             self.drawpalette()
             self.redraw()
@@ -436,9 +447,14 @@ class Application(tk.Frame):
         self.palettecanvas.coords(self.paletteselect, i*32, 1, (i+1)*32, 32)
 
     def setpalette(self, p):
-        p = list(p) # Keep original palette unaltered
-        self.pixelgrid.palette = p
+        newp = p[:] # Keep original palette unaltered
+        self.pixelgrid.palette = newp
         self.currentcolor = 0
+        self.drawpalette()
+        self.redraw()
+
+    def constrainpalette(self, c):
+        palette.constrain(self.pixelgrid.palette, c)
         self.drawpalette()
         self.redraw()
 
