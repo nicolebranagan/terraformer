@@ -1,5 +1,6 @@
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import colorchooser
 from tkinter import filedialog
 import math
 import json
@@ -214,6 +215,7 @@ class Application(tk.Frame):
                 1, 1, 32, 32, outline="red")
         self.palettecanvas.bind("<Button-1>", self.clickpalettecanvas)
         self.palettecanvas.bind("<Button-3>", self.rclickpalettecanvas)
+        self.palettecanvas.bind("<Double-Button-1>", self.dclickpalettecanvas)
 
     def newFile(self):
         # Create new photoimage
@@ -414,6 +416,20 @@ class Application(tk.Frame):
                                       self.getCurrentSelection())
             self.redraw()
 
+    def dclickpalettecanvas(self, event):
+        i = math.floor(self.palettecanvas.canvasx(event.x) // 32)
+        if i < len(self.pixelgrid.palette):
+            color=colorchooser.askcolor(
+                    initialcolor=self.pixelgrid.palette[i])
+            if color[0] is None:
+                return
+            newcolor = (int(color[0][0]),int(color[0][1]),int(color[0][2]))
+            if type(self.pixelgrid.palette) is tuple:
+                self.pixelgrid.palette = list(self.pixelgrid.palette)
+            self.pixelgrid.palette[i] = newcolor
+            self.drawpalette()
+            self.redraw()
+   
     def selectcolor(self, i):
         self.midstep = False
         self.currentcolor = i
