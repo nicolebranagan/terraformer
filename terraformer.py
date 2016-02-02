@@ -83,26 +83,48 @@ class Application(tk.Frame):
         # Shifters
         shiftframe = tk.Frame(self)
         shiftframe.grid(row=0, column=0)
+        hflipbutton = tk.Button(
+                shiftframe, text="H. Flip", 
+                command=lambda:tool.LinearFunc(
+                    -1,0,1,0,1,0).step1(
+                    self.getCurrentSelection()))
+        hflipbutton.grid(row=0, column=0)
+        vflipbutton = tk.Button(
+                shiftframe, text="V. Flip", 
+                command=lambda:tool.LinearFunc(
+                    1,0,0,0,-1,1).step1(
+                    self.getCurrentSelection()))
+        vflipbutton.grid(row=0, column=1)
+        rotcwbutton = tk.Button(
+                shiftframe, text="CW", 
+                command=lambda:tool.LinearFunc(
+                    0,-1,1,1,0,0).step1(self.getCurrentSelection()))
+        rotcwbutton.grid(row=0, column=2)
+        rotccwbutton = tk.Button(
+                shiftframe, text="CCW", 
+                command=lambda:tool.LinearFunc(
+                    0,1,0,-1,0,1).step1(self.getCurrentSelection()))
+        rotccwbutton.grid(row=0, column=3)
         shiftupbutton = tk.Button(
                 shiftframe, text="^", 
                 command=lambda:tool.Shifter(0,-1).step1(
                     self.getCurrentSelection()))
-        shiftupbutton.grid(row=0, column=0)
+        shiftupbutton.grid(row=0, column=10)
         shiftdownbutton = tk.Button(
                 shiftframe, text="v", 
                 command=lambda:tool.Shifter(0,1).step1(
                     self.getCurrentSelection()))
-        shiftdownbutton.grid(row=0, column=1)
+        shiftdownbutton.grid(row=0, column=11)
         shiftleftbutton = tk.Button(
                 shiftframe, text="<", 
                 command=lambda:tool.Shifter(-1,0).step1(
                     self.getCurrentSelection()))
-        shiftleftbutton.grid(row=0, column=2)
+        shiftleftbutton.grid(row=0, column=12)
         shiftrightbutton = tk.Button(
                 shiftframe, text=">", 
                 command=lambda:tool.Shifter(1,0).step1(
                     self.getCurrentSelection()))
-        shiftrightbutton.grid(row=0, column=3)
+        shiftrightbutton.grid(row=0, column=13)
         
 
         # Create canvas for larger view

@@ -64,7 +64,16 @@ class PixelGrid:
                     self._tiles[(i,j)].flip(val1, val2)
                 elif val1 == 0:
                     self._tiles[(i, j)] = PixelTile(val2)
-    
+
+    def linearshift(self, a, b, c, d, e, f):
+        oldtiles = copy.deepcopy(self._tiles)
+        for x in range(0, 8*self._width):
+            for y in range(0, 8*self._height):
+                i = (a*x+b*y+c*(self._width*8-1))
+                j = (d*x+e*y+f*(self._height*8-1))
+                if (self.get(x, y, oldtiles) != self.get(i,j, oldtiles)):
+                    self.set(i,j,self.get(x,y,oldtiles))
+
     def shift(self, dx, dy):
         oldtiles = copy.deepcopy(self._tiles)
         
@@ -75,7 +84,6 @@ class PixelGrid:
                  
                 if (self.get(x, y, oldtiles) != self.get(i,j, oldtiles)):
                     self.set(i,j,self.get(x,y,oldtiles))
-
 
     def getTkImage(self, zoom):
         photo = tk.PhotoImage(width=8*self._width*zoom, 

@@ -289,6 +289,26 @@ class Shifter:
         pixelgrid.mergeSubset(block, selection[0], selection[1])
         redraw()
 
+class LinearFunc:
+    def __init__(self, a, b, c, d, e, f):
+        self.twostep = False
+        self.pixel = False
+        self.a = a
+        self.b = b
+        self.c = c
+        self.d = d
+        self.e = e
+        self.f = f
+
+    def step1(self, selection):
+        global pixelgrid
+        global redraw
+        undoblock(selection)
+        block = PixelSubset(pixelgrid, selection)
+        block.linearshift(self.a, self.b, self.c, self.d, self.e, self.f)
+        pixelgrid.mergeSubset(block, selection[0], selection[1])
+        redraw()
+
 class Fill(Tool):
     def __init__(self):
         self.twostep = False
