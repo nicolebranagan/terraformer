@@ -7,7 +7,11 @@ class PixelGrid:
         # Declare an empty pixelgrid
         self._width = 32
         self._height = 32
+
         self._tiles = {}
+
+        self._pages = []
+        self._pages.append(self._tiles)
         self.palette = palette
 
     def get(self, x, y, tileset=None):
@@ -118,26 +122,40 @@ class PixelGrid:
         output["height"] = self._height
         output["palette"] = self.palette
 
-        output["tiles"] = {}
-        for c in self._tiles:
-            st = "".join((str(c[0]),",",str(c[1])))
-            output["tiles"][st] = self._tiles[c].dump()
+        output["tiles"] = []
+        i = -1
+        for page in self._pages:
+            i = i+1
+            output["tiles"].append({})
+            for c in page:
+                st = "".join((str(c[0]),",",str(c[1])))
+                output["tiles"][i][st] = page[c].dump()
 
         return output
 
     def load(self, info):
-        self._tiles = {}
+        self._pages = []
         self._width = int(info["width"])
         self._height = int(info["height"])
         self.palette = [tuple(x) for x in info["palette"]]
-
-        for tile in info["tiles"]:
-            num = tile.split(",")
-            if len(num) != 2:
-                continue
-            loc = (int(num[0]),int(num[1]))
-            self._tiles[loc] = PixelTile().load(info["tiles"][tile])
         
+        i = -1
+        for page in info["tiles"]:
+            i = i+1
+            self._pages.append({})
+            for tile in page:
+                num = tile.split(",")
+                if len(num) != 2:
+                    continue
+                loc = (int(num[0]),int(num[1]))
+                self._pages[i][loc] = PixelTile().load(page[tile])
+
+        self._tiles = self._pages[0]
+
+    def changepage(self, pagenum):
+        while len(self._pages) < (pagenum+1):
+            self._pages.append({})
+        self._tiles = self._pages[pagenum]
 
 class PixelTile:
     def __init__(self, fill=0):

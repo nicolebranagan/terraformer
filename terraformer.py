@@ -19,6 +19,7 @@ class Application(tk.Frame):
         self.midstep = False
         self.currentcolor = 0
         self.clipboard = None
+        self.currentpage = 0
 
         self.currenttool = tool.Pencil(False)
         self.pack()
@@ -214,10 +215,22 @@ class Application(tk.Frame):
         fillbutton.pack()
         
         # Create zoom
-        self.multiplescale = ttk.Scale(self, from_=1.0, to=8.0,
+        lowerpanel1 = tk.Frame(self)
+        lowerpanel1.grid(row=2, column=0)
+        self.multiplescale = ttk.Scale(lowerpanel1, from_=1.0, to=8.0,
                                       orient=tk.HORIZONTAL,
                                       command=self.resetscale)
-        self.multiplescale.grid(row=2, column=0)
+        self.multiplescale.grid(row=0, column=0, sticky=tk.W)
+        tk.Frame(lowerpanel1, width=256).grid(row=0, column=1)
+        lowerpanel1_1 = tk.Frame(lowerpanel1)
+        lowerpanel1_1.grid(row=0, column=2, sticky=tk.E)
+        self.prevpagebutton = tk.Button(lowerpanel1_1, text="<",
+                                        state=tk.DISABLED,
+                                        command = lambda: self.paginate(-1))
+        self.prevpagebutton.grid(row=0, column=0, sticky=tk.E)
+        nextpagebutton = tk.Button(lowerpanel1_1, text=">",
+                                   command = lambda: self.paginate(1))
+        nextpagebutton.grid(row=0,column=1, sticky=tk.E)
         
         # Create palette
         self.palettecanvas = tk.Canvas(self, width=512, height=32)
@@ -545,11 +558,13 @@ class Application(tk.Frame):
                 filetypes=(("Terraformer images", "*.terra"),
                            ("All files", "*")),
                 title="Open paletted image")
-        if filen != ():
+        if filen != () and filen != "":
             with open(filen, "r") as fileo:
                 self.pixelgrid.load(json.load(fileo))
                 self.drawpalette()
                 self.redraw()
+                self.currentpage = 0
+                self.prevpagebutton.config(state=tk.DISABLED)
 
     def save(self):
         grid = self.pixelgrid.dump()
@@ -559,7 +574,7 @@ class Application(tk.Frame):
                 filetypes=(("Terraformer images", "*.terra"),
                            ("All files", "*")),
                 title="Save paletted image to file")
-        if filen != ():
+        if filen != () and filen != "":
             with open(filen, "w") as fileo:
                 json.dump(grid, fileo)
 
@@ -569,6 +584,15 @@ class Application(tk.Frame):
                 title="Export to file")
         if filen != ():
             self.pixelgrid.getTkImage(1).write(filen)
+
+    def paginate(self, by):
+        self.currentpage = self.currentpage + by
+        self.pixelgrid.changepage(self.currentpage)
+        if self.currentpage > 0:
+            self.prevpagebutton.config(state=tk.NORMAL)
+        else:
+            self.prevpagebutton.config(state=tk.DISABLED)
+        self.redraw()
 
 root = tk.Tk()
 app = Application(master=root)
