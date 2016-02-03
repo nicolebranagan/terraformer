@@ -4,6 +4,7 @@ from tkinter import colorchooser
 from tkinter import filedialog
 import math
 import json
+import os
 
 import palette
 import tool
@@ -26,6 +27,15 @@ class Application(tk.Frame):
         self.configure()
         self.createWidgets()
         self.newFile()
+        
+        self.config = {
+            "lastdir" : "./"}
+        
+        try:
+            with open("./config.json", "r") as fileo:
+                self.config = json.load(fileo)
+        except IOError:
+            pass # Just use default
 
     def configure(self):
         self.basezoom = 2
@@ -557,14 +567,23 @@ class Application(tk.Frame):
         filen = filedialog.askopenfilename(
                 filetypes=(("Terraformer images", "*.terra"),
                            ("All files", "*")),
-                title="Open paletted image")
+                title="Open paletted image",
+                initialdir=self.config["lastdir"])
         if filen != () and filen != "":
             with open(filen, "r") as fileo:
                 self.pixelgrid.load(json.load(fileo))
-                self.drawpalette()
-                self.redraw()
-                self.currentpage = 0
-                self.prevpagebutton.config(state=tk.DISABLED)
+            self.drawpalette()
+            self.redraw()
+                
+            self.currentpage = 0
+            self.prevpagebutton.config(state=tk.DISABLED)
+            self.config["lastdir"] = os.path.dirname(filen)
+           
+            try:
+                with open("./config.json", "w") as fileo:
+                    json.dump(self.config, fileo)
+            except IOError:
+                pass # Not a big deal
 
     def save(self):
         grid = self.pixelgrid.dump()
