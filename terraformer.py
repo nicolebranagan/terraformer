@@ -18,15 +18,13 @@ class Application(tk.Frame):
         self.selectedy = 0
         self.selecting = False
         self.midstep = False
-        self.currentcolor = 0
         self.clipboard = None
-        self.currentpage = 0
 
         self.currenttool = tool.Pencil(False)
         self.pack()
         self.configure()
         self.createWidgets()
-        self.newFile()
+        self.new()
         
         self.config = {
             "lastdir" : "./"}
@@ -64,6 +62,8 @@ class Application(tk.Frame):
         self.master.config(menu=menubar)
 
         filemenu = tk.Menu(menubar)
+        filemenu.add_command(label="New File", command=self.new)
+        filemenu.add_separator()
         filemenu.add_command(label="Open Terraformer File", command=self.open)
         filemenu.add_command(label="Save Terraformer File", command=self.save)
         filemenu.add_separator()
@@ -253,15 +253,19 @@ class Application(tk.Frame):
         self.palettecanvas.bind("<Button-3>", self.rclickpalettecanvas)
         self.palettecanvas.bind("<Double-Button-1>", self.dclickpalettecanvas)
 
-    def newFile(self):
+    def new(self):
         # Create new photoimage
         self.pixelgrid = PixelGrid(palette.ega[:])
         tool.initialize(self.pixelgrid, self.quickdraw, self.redraw)
-        self.drawpalette()
-        self.image = self.pixelgrid.getTkImage(self.basezoom)
-        self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
         self.reselecttile(self.selectedx, self.selectedy)
         self.multiplescale.set(2.0)
+        self.currentpage = 0
+        self.selecting = False
+        self.midstep = False
+        self.prevpagebutton.config(state=tk.DISABLED)
+        self.selectcolor(0)
+        self.drawpalette()
+        self.redraw()
 
     def drawpalette(self):
         self.palette = tk.PhotoImage(width=512, height=32)
