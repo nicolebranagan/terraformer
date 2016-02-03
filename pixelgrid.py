@@ -14,6 +14,10 @@ class PixelGrid:
         self._pages.append(self._tiles)
         self.palette = palette
 
+    @property
+    def pages(self):
+        return len(self._pages)
+
     def get(self, x, y, tileset=None):
         if tileset is None:
             tileset = self._tiles

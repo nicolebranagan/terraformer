@@ -224,7 +224,7 @@ class Application(tk.Frame):
             command=lambda:self.changetool(tool.Fill()))
         fillbutton.pack()
         
-        # Create zoom
+        # Create lower panel
         lowerpanel1 = tk.Frame(self)
         lowerpanel1.grid(row=2, column=0)
         self.multiplescale = ttk.Scale(lowerpanel1, from_=1.0, to=8.0,
@@ -237,10 +237,12 @@ class Application(tk.Frame):
         self.prevpagebutton = tk.Button(lowerpanel1_1, text="<",
                                         state=tk.DISABLED,
                                         command = lambda: self.paginate(-1))
-        self.prevpagebutton.grid(row=0, column=0, sticky=tk.E)
+        self.prevpagebutton.grid(row=0, column=0)
         nextpagebutton = tk.Button(lowerpanel1_1, text=">",
                                    command = lambda: self.paginate(1))
-        nextpagebutton.grid(row=0,column=1, sticky=tk.E)
+        nextpagebutton.grid(row=0,column=1)
+        self.pagelabel = tk.Label(lowerpanel1_1, text="1/1")
+        self.pagelabel.grid(row=0, column=2)
         
         # Create palette
         self.palettecanvas = tk.Canvas(self, width=512, height=32)
@@ -263,6 +265,7 @@ class Application(tk.Frame):
         self.selecting = False
         self.midstep = False
         self.prevpagebutton.config(state=tk.DISABLED)
+        self.pagelabel.config(text="1/1")
         self.selectcolor(0)
         self.drawpalette()
         self.redraw()
@@ -587,6 +590,9 @@ class Application(tk.Frame):
                 
             self.currentpage = 0
             self.prevpagebutton.config(state=tk.DISABLED)
+            self.pagelabel.config(
+                text="{0}/{1}".format(self.currentpage+1,
+                                      self.pixelgrid.pages))
             self.config["lastdir"] = os.path.dirname(filen)
            
             try:
@@ -621,6 +627,9 @@ class Application(tk.Frame):
             self.prevpagebutton.config(state=tk.NORMAL)
         else:
             self.prevpagebutton.config(state=tk.DISABLED)
+        self.pagelabel.config(
+            text="{0}/{1}".format(self.currentpage+1,
+                                  self.pixelgrid.pages))
         self.redraw()
 
 root = tk.Tk()
