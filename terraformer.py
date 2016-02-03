@@ -459,6 +459,7 @@ class Application(tk.Frame):
                     initialcolor=self.pixelgrid.palette[i])
             if color[0] is None:
                 return
+            tool.undopalette()
             newcolor = (int(color[0][0]),int(color[0][1]),int(color[0][2]))
             self.pixelgrid.palette[i] = newcolor
             self.drawpalette()
@@ -471,12 +472,14 @@ class Application(tk.Frame):
 
     def setpalette(self, p):
         newp = p[:] # Keep original palette unaltered
+        tool.undopalette()
         self.pixelgrid.palette = newp
         self.currentcolor = 0
         self.drawpalette()
         self.redraw()
 
     def constrainpalette(self, c):
+        tool.undopalette()
         palette.constrain(self.pixelgrid.palette, c)
         self.drawpalette()
         self.redraw()
@@ -498,16 +501,19 @@ class Application(tk.Frame):
         self.image.put("#%02x%02x%02x" % color,
                        to=(x*zoom, y*zoom, x*zoom + zoom, y*zoom + zoom))
         
-    def redraw(self):
-        self.image = self.pixelgrid.getTkImage(self.basezoom)
-        self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
-        if not self.selecting:
+    def redraw(self, image=True, canvas=True, palette=False):
+        if image:
+            self.image = self.pixelgrid.getTkImage(self.basezoom)
+            self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
+        if canvas and not self.selecting:
             self.editimage = self.pixelgrid.getTkSubset(
                     self.basezoom * (256 // (8*self.multiple)),
                     self.selectedx, self.selectedy, 
                     self.multiple)
             self.editcanvas.itemconfig(self.editcanvasimage, 
                                        image=self.editimage)
+        if palette:
+            self.drawpalette()
 
     def delete(self, event=None):
         select = self.getCurrentSelection()

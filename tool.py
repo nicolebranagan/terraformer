@@ -40,6 +40,15 @@ def undoscreen():
         redraw()
     undostack.append(reverse)
 
+def undopalette():
+    global pixelgrid
+    oldpalette = copy.copy(pixelgrid.palette)
+    def reverse():
+        global pixelgrid
+        pixelgrid.palette = oldpalette
+        redraw(True, True, True)
+    undostack.append(reverse)
+
 class Tool:
     def __init__(self):
         # Does the tool take two steps to complete?
