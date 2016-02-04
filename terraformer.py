@@ -550,7 +550,11 @@ class Application(tk.Frame):
             x = self.selectedx
             y = self.selectedy
         
-        tool.undoblock(self.getCurrentSelection())
+        currentsel = self.getCurrentSelection()
+        tool.undoblock([currentsel[0],
+                        currentsel[1],
+                        currentsel[0]+self.clipboard.width,
+                        currentsel[1]+self.clipboard.height])
         self.pixelgrid.mergeSubset(self.clipboard, x, y)
         self.redraw()
     
