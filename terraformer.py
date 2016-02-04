@@ -266,6 +266,7 @@ class Application(tk.Frame):
         self.midstep = False
         self.prevpagebutton.config(state=tk.DISABLED)
         self.pagelabel.config(text="1/1")
+        self.currentfilename = "image.terra"
         self.selectcolor(0)
         self.drawpalette()
         self.redraw()
@@ -598,7 +599,7 @@ class Application(tk.Frame):
                 text="{0}/{1}".format(self.currentpage+1,
                                       self.pixelgrid.pages))
             self.config["lastdir"] = os.path.dirname(filen)
-           
+            self.currentfilename = os.path.basename(filen) 
             try:
                 with open("./config.json", "w") as fileo:
                     json.dump(self.config, fileo)
@@ -609,7 +610,8 @@ class Application(tk.Frame):
         grid = self.pixelgrid.dump()
         filen = filedialog.asksaveasfilename(
                 defaultextension=".terra",
-                initialfile="image.terra",
+                initialfile=self.currentfilename,
+                initialdir=self.config["lastdir"],
                 filetypes=(("Terraformer images", "*.terra"),
                            ("All files", "*")),
                 title="Save paletted image to file")
