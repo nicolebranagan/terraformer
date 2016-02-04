@@ -25,6 +25,7 @@ def undo(event=None):
 
 def undoblock(selection):
     global pixelgrid
+    selection = copy.copy(selection)
     block = PixelSubset(pixelgrid, selection)
     def reverse():
         pixelgrid.mergeSubset(block, selection[0], selection[1])

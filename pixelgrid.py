@@ -58,6 +58,7 @@ class PixelGrid:
     def mergeSubset(self, subset, x, y):
         for i in range(0, subset._width):
             for j in range(0, subset._height):
+                print(i,j)
                 if i + x <= self._width and j + y <= self._height:
                     if (i,j) in subset._tiles:
                         self._tiles[(i+x, j+y)] = subset._tiles[(i,j)]
