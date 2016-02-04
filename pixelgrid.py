@@ -5,8 +5,8 @@ import tkinter as tk
 class PixelGrid:
     def __init__(self, palette):
         # Declare an empty pixelgrid
-        self._width = 32
-        self._height = 32
+        self.width = 32
+        self.height = 32
 
         self._tiles = {}
 
@@ -36,7 +36,7 @@ class PixelGrid:
         return self.palette[self.get(x,y)]
 
     def set(self, x, y, val):
-        if x < 0 or x >= self._width*8 or y < 0 or y >= self._height*8:
+        if x < 0 or x >= self.width*8 or y < 0 or y >= self.height*8:
             return
 
         tilex = x // 8
@@ -52,14 +52,14 @@ class PixelGrid:
         self._tiles.pop((x,y),None)
 
     def bounds(self, x, y):
-        return (x >= 0 and x < 8*self._width and 
-                y >= 0 and y < 8*self._height)
+        return (x >= 0 and x < 8*self.width and 
+                y >= 0 and y < 8*self.height)
 
     def mergeSubset(self, subset, x, y):
-        for i in range(0, subset._width):
-            for j in range(0, subset._height):
+        for i in range(0, subset.width):
+            for j in range(0, subset.height):
                 print(i,j)
-                if i + x <= self._width and j + y <= self._height:
+                if i + x <= self.width and j + y <= self.height:
                     if (i,j) in subset._tiles:
                         self._tiles[(i+x, j+y)] = subset._tiles[(i,j)]
                     else:
@@ -76,31 +76,31 @@ class PixelGrid:
 
     def linearshift(self, a, b, c, d, e, f):
         oldtiles = copy.deepcopy(self._tiles)
-        for x in range(0, 8*self._width):
-            for y in range(0, 8*self._height):
-                i = (a*x+b*y+c*(self._width*8-1))
-                j = (d*x+e*y+f*(self._height*8-1))
+        for x in range(0, 8*self.width):
+            for y in range(0, 8*self.height):
+                i = (a*x+b*y+c*(self.width*8-1))
+                j = (d*x+e*y+f*(self.height*8-1))
                 if (self.get(x, y, oldtiles) != self.get(i,j, oldtiles)):
                     self.set(i,j,self.get(x,y,oldtiles))
 
     def shift(self, dx, dy):
         oldtiles = copy.deepcopy(self._tiles)
         
-        for i in range(0, 8*self._width):
-            for j in range(0, 8*self._height):
-                x = (i - dx) % (8*self._width)
-                y = (j - dy) % (8*self._height)
+        for i in range(0, 8*self.width):
+            for j in range(0, 8*self.height):
+                x = (i - dx) % (8*self.width)
+                y = (j - dy) % (8*self.height)
                  
                 if (self.get(x, y, oldtiles) != self.get(i,j, oldtiles)):
                     self.set(i,j,self.get(x,y,oldtiles))
 
     def getTkImage(self, zoom):
-        photo = tk.PhotoImage(width=8*self._width*zoom, 
-                              height=8*self._height*zoom)
+        photo = tk.PhotoImage(width=8*self.width*zoom, 
+                              height=8*self.height*zoom)
         photo.put("#%02x%02x%02x" % self.palette[0], 
-                  to=(0,0,8*self._width*zoom,8*self._height*zoom))
-        for i in range(0, 8*self._width):
-            for j in range(0, 8*self._height):
+                  to=(0,0,8*self.width*zoom,8*self.height*zoom))
+        for i in range(0, 8*self.width):
+            for j in range(0, 8*self.height):
                 if self.get(i,j) != 0:
                     photo.put(
                         "#%02x%02x%02x" % self.getColor(i,j), 
@@ -123,8 +123,8 @@ class PixelGrid:
     def dump(self):
         output = {}
         output["version"] = 0.0 # just in case we need it later
-        output["width"] = self._width
-        output["height"] = self._height
+        output["width"] = self.width
+        output["height"] = self.height
         output["palette"] = self.palette
 
         output["tiles"] = []
@@ -140,8 +140,8 @@ class PixelGrid:
 
     def load(self, info):
         self._pages = []
-        self._width = int(info["width"])
-        self._height = int(info["height"])
+        self.width = int(info["width"])
+        self.height = int(info["height"])
         self.palette = [tuple(x) for x in info["palette"]]
         
         i = -1
@@ -164,16 +164,16 @@ class PixelGrid:
 
 class PixelTile:
     def __init__(self, fill=0):
-        self._width = 8
-        self._height = 8
-        self._pixels = [fill for x in range(self._width * self._height)]
+        self.width = 8
+        self.height = 8
+        self._pixels = [fill for x in range(self.width * self.height)]
 
     def get(self, x, y):
-        return self._pixels[x + y*self._width]
+        return self._pixels[x + y*self.width]
 
     def set(self, x, y, val):
-        i = x+y*self._width
-        self._pixels[x + y*self._width] = val
+        i = x+y*self.width
+        self._pixels[x + y*self.width] = val
 
     def flip(self, val1, val2):
         self._pixels = [val2 if x == val1 else x for x in self._pixels]
@@ -193,12 +193,12 @@ class PixelSubset(PixelGrid):
         maxx = max(selection[0], selection[2])
         miny = min(selection[1], selection[3])
         maxy = max(selection[1], selection[3])
-        self._width = maxx-minx
-        self._height = maxy-miny
+        self.width = maxx-minx
+        self.height = maxy-miny
         self._tiles = {}
 
-        for i in range(0, parent._width):
-            for j in range(0, parent._height):
+        for i in range(0, parent.width):
+            for j in range(0, parent.height):
                 if i >= minx and i <= maxx and j >= miny and j <= maxy:
                     if (i,j) in parent._tiles:
                         self._tiles[(i-minx, j-miny)] = copy.deepcopy(
