@@ -56,11 +56,12 @@ class PixelGrid:
                 y >= 0 and y < 8*self.height)
 
     def mergeSubset(self, subset, x, y):
+        newtiles = copy.deepcopy(subset._tiles)
         for i in range(0, subset.width):
             for j in range(0, subset.height):
                 if i + x <= self.width and j + y <= self.height:
-                    if (i,j) in subset._tiles:
-                        self._tiles[(i+x, j+y)] = subset._tiles[(i,j)]
+                    if (i,j) in newtiles:
+                        self._tiles[(i+x, j+y)] = newtiles[(i,j)]
                     else:
                         if (i+x, j+y) in self._tiles:
                             del(self._tiles[(i+x, j+y)])

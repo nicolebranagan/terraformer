@@ -71,7 +71,7 @@ class Application(tk.Frame):
         filemenu.add_command(label="Save Terraformer File", command=self.save)
         filemenu.add_command(label="Save As..", command=self.saveas)
         filemenu.add_separator()
-        filemenu.add_command(label="Export to PNG", command=self.export)
+        filemenu.add_command(label="Export image to PNG", command=self.export)
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=exit)
         menubar.add_cascade(label="File", menu=filemenu)
@@ -644,7 +644,7 @@ class Application(tk.Frame):
             json.dump(grid, fileo)
         self.config["lastdir"] = os.path.dirname(name)
         self.currentfilename = os.path.basename(name) 
-
+    
     def export(self):
         filen = filedialog.asksaveasfilename(
                 defaultextension=".png",
