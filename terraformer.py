@@ -48,7 +48,8 @@ class Application(tk.Frame):
         self.master.bind("<Control-c>", self.copy)
         self.master.bind("<Control-v>", self.paste)
         self.master.bind("<Control-z>", tool.undo)
-
+        self.master.bind("<Control-s>", self.save)
+        
         self.master.bind("<Left>", lambda x: self.reselecttile(
                     self.selectedx-self.multiple, self.selectedy))
         self.master.bind("<Right>", lambda x: self.reselecttile(
@@ -66,7 +67,9 @@ class Application(tk.Frame):
         filemenu.add_command(label="New File", command=self.new)
         filemenu.add_separator()
         filemenu.add_command(label="Open Terraformer File", command=self.open)
+        filemenu.add_separator()
         filemenu.add_command(label="Save Terraformer File", command=self.save)
+        filemenu.add_command(label="Save As..", command=self.saveas)
         filemenu.add_separator()
         filemenu.add_command(label="Export to PNG", command=self.export)
         filemenu.add_separator()
@@ -271,7 +274,7 @@ class Application(tk.Frame):
         self.midstep = False
         self.prevpagebutton.config(state=tk.DISABLED)
         self.pagelabel.config(text="1/1")
-        self.currentfilename = "image.terra"
+        self.currentfilename = ""
         self.selectcolor(0)
         self.drawpalette()
         self.redraw()
@@ -611,18 +614,36 @@ class Application(tk.Frame):
             except IOError:
                 pass # Not a big deal
 
-    def save(self):
-        grid = self.pixelgrid.dump()
+    def save(self, event=None):
+        if self.currentfilename == "":
+            self.saveas()
+        else:
+            self.savefile(os.path.join(
+                        self.config["lastdir"],
+                        self.currentfilename))
+
+    def saveas(self):
+        name = "image.terra"
+        if self.currentfilename != "":
+            name = self.currentfilename
+
         filen = filedialog.asksaveasfilename(
                 defaultextension=".terra",
-                initialfile=self.currentfilename,
+                initialfile=name,
                 initialdir=self.config["lastdir"],
                 filetypes=(("Terraformer images", "*.terra"),
                            ("All files", "*")),
                 title="Save paletted image to file")
         if filen != () and filen != "":
             with open(filen, "w") as fileo:
-                json.dump(grid, fileo)
+                self.savefile(filen)
+
+    def savefile(self, name):
+        grid = self.pixelgrid.dump()
+        with open(name, "w") as fileo:
+            json.dump(grid, fileo)
+        self.config["lastdir"] = os.path.dirname(name)
+        self.currentfilename = os.path.basename(name) 
 
     def export(self):
         filen = filedialog.asksaveasfilename(
