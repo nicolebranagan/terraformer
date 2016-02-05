@@ -5,6 +5,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 import math
 import json
+import time
 import os
 
 import palette
@@ -262,6 +263,11 @@ class Application(tk.Frame):
         self.palettecanvas.bind("<Button-1>", self.clickpalettecanvas)
         self.palettecanvas.bind("<Button-3>", self.rclickpalettecanvas)
         self.palettecanvas.bind("<Double-Button-1>", self.dclickpalettecanvas)
+
+        # Create status bar
+        self.statusbar = tk.Label(self, bd=1, relief=tk.SUNKEN, anchor=tk.W,
+                                  text="Welcome to Terraformer")
+        self.statusbar.grid(row=3, column=0, columnspan=4, sticky=tk.W+tk.E)
 
     def new(self):
         # Create new photoimage
@@ -613,6 +619,9 @@ class Application(tk.Frame):
                     json.dump(self.config, fileo)
             except IOError:
                 pass # Not a big deal
+            self.statusbar.config(text=(
+                        "Opened file " + self.currentfilename + " at " +
+                        time.strftime("%I:%M %p", time.localtime())))
 
     def save(self, event=None):
         if self.currentfilename == "":
@@ -643,7 +652,10 @@ class Application(tk.Frame):
         with open(name, "w") as fileo:
             json.dump(grid, fileo)
         self.config["lastdir"] = os.path.dirname(name)
-        self.currentfilename = os.path.basename(name) 
+        self.currentfilename = os.path.basename(name)
+        self.statusbar.config(text=(
+                    "Saved file " + self.currentfilename + " at " +
+                    time.strftime("%I:%M %p", time.localtime())))
     
     def export(self):
         filen = filedialog.asksaveasfilename(
