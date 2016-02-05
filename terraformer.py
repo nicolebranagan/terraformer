@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import colorchooser
 from tkinter import filedialog
+from tkinter import messagebox
 import math
 import json
 import os
@@ -234,15 +235,19 @@ class Application(tk.Frame):
         tk.Frame(lowerpanel1, width=256).grid(row=0, column=1)
         lowerpanel1_1 = tk.Frame(lowerpanel1)
         lowerpanel1_1.grid(row=0, column=2, sticky=tk.E)
+        self.pagelabel = tk.Label(lowerpanel1_1, text="1/1")
+        self.pagelabel.grid(row=0, column=0)
         self.prevpagebutton = tk.Button(lowerpanel1_1, text="<",
                                         state=tk.DISABLED,
                                         command = lambda: self.paginate(-1))
-        self.prevpagebutton.grid(row=0, column=0)
+        self.prevpagebutton.grid(row=0, column=1)
         nextpagebutton = tk.Button(lowerpanel1_1, text=">",
                                    command = lambda: self.paginate(1))
-        nextpagebutton.grid(row=0,column=1)
-        self.pagelabel = tk.Label(lowerpanel1_1, text="1/1")
-        self.pagelabel.grid(row=0, column=2)
+        nextpagebutton.grid(row=0,column=2)
+        self.delpagebutton = tk.Button(lowerpanel1_1, text="X",
+                                        state=tk.DISABLED,
+                                        command=self.deletepage)
+        self.delpagebutton.grid(row=0, column=3)
         
         # Create palette
         self.palettecanvas = tk.Canvas(self, width=512, height=32)
@@ -636,7 +641,26 @@ class Application(tk.Frame):
         self.pagelabel.config(
             text="{0}/{1}".format(self.currentpage+1,
                                   self.pixelgrid.pages))
+        if self.currentpage > 0 and (self.currentpage+1 == 
+                                     self.pixelgrid.pages):
+            self.delpagebutton.config(state=tk.NORMAL)
+        else:
+            self.delpagebutton.config(state=tk.DISABLED)
+        
         self.redraw()
+
+    def deletepage(self):
+        if not self.pixelgrid.ispageclear(self.currentpage):
+            result = messagebox.askyesno(
+                    "Delete page",
+                    ("Okay to delete page?\n"
+                     "All information will be lost.\n"
+                     "This action can not be undone."),
+                    default = messagebox.NO)
+            if not result:
+                return
+        self.pixelgrid.dellastpage()
+        self.paginate(-1)
 
 root = tk.Tk()
 app = Application(master=root)

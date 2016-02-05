@@ -161,6 +161,12 @@ class PixelGrid:
             self._pages.append({})
         self._tiles = self._pages[pagenum]
 
+    def dellastpage(self):
+        self._pages.pop()
+
+    def ispageclear(self, num):
+        return len(self._pages[num]) == 0
+
 class PixelTile:
     def __init__(self, fill=0):
         self.width = 8
