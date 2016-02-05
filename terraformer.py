@@ -104,6 +104,9 @@ class Application(tk.Frame):
                     palette.Constraint.Genesis)) 
         palettemenu.add_cascade(label="Constrain palette",
                                 menu=palette2menu)
+        palettemenu.add_command(
+                label="Clear palette",
+                command=lambda: self.setpalette(palette.none))
         menubar.add_cascade(label="Palette", menu=palettemenu)
 
         debugmenu = tk.Menu(menubar)
