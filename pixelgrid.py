@@ -120,6 +120,26 @@ class PixelGrid:
                         to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
         return photo
 
+    def getTkStrip(self, height):
+        max_ = self._getmaxtuple()
+        rows = math.ceil((1+max_[1])/height)
+        
+        strip = tk.PhotoImage(width=rows*self.width*8,
+                              height=height*8)
+        strip.put("#000000", to=(0,0,rows*self.width*8,height*8))
+        for loc in self._tiles:
+            y = loc[1] % height
+            x = math.floor(loc[1] / height) * self.width + loc[0]
+            x = x*8
+            y = y*8
+            self._tiles[loc].draw(strip, 1, self.palette, x, y)
+        return strip
+
+    def _getmaxtuple(self):
+        ys = [x[1] for x in self._tiles]
+        xs = [x[0] for x in self._tiles if x[1] == max(ys)]
+        return (max(xs), max(ys))
+
     def dump(self):
         output = {}
         output["version"] = 0.0 # just in case we need it later
@@ -186,6 +206,14 @@ class PixelTile:
 
     def dump(self):
         return self._pixels
+
+    def draw(self, photo, zoom, palette, x, y):
+        for i in range(0, 8):
+            for j in range(0, 8):
+                if self.get(i,j) != 0:
+                    photo.put(
+                        "#%02x%02x%02x" % palette[self.get(i,j)], 
+                        to=(x+i, y+j, x+i+zoom, y+j+zoom))
 
     def load(self, pixels):
         self._pixels = pixels

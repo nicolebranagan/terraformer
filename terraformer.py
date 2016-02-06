@@ -73,6 +73,17 @@ class Application(tk.Frame):
         filemenu.add_command(label="Save As..", command=self.saveas)
         filemenu.add_separator()
         filemenu.add_command(label="Export image to PNG", command=self.export)
+        exportmenu = tk.Menu(filemenu)
+        exportmenu.add_command(label="8x8", 
+                               command=lambda: self.exportstrip(1))
+        exportmenu.add_command(label="16x16", 
+                               command=lambda: self.exportstrip(2))
+        exportmenu.add_command(label="24x24", 
+                               command=lambda: self.exportstrip(3))
+        exportmenu.add_command(label="32x32", 
+                               command=lambda: self.exportstrip(4))
+        filemenu.add_cascade(label="Export image as strip...", 
+                             menu=exportmenu)
         filemenu.add_separator()
         filemenu.add_command(label="Exit", command=exit)
         menubar.add_cascade(label="File", menu=filemenu)
@@ -667,6 +678,13 @@ class Application(tk.Frame):
         if filen != ():
             self.pixelgrid.getTkImage(1).write(filen)
 
+    def exportstrip(self, height):
+        filen = filedialog.asksaveasfilename(
+                defaultextension=".png",
+                title="Export strip to file")
+        if filen != ():
+            self.pixelgrid.getTkStrip(height).write(filen)
+    
     def paginate(self, by):
         self.currentpage = self.currentpage + by
         self.pixelgrid.changepage(self.currentpage)
