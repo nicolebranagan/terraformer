@@ -13,6 +13,7 @@ import os
 import palette
 import tool
 from pixelgrid import *
+import importer
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -73,6 +74,8 @@ class Application(tk.Frame):
         filemenu.add_separator()
         filemenu.add_command(label="Save Terraformer File", command=self.save)
         filemenu.add_command(label="Save As..", command=self.saveas)
+        filemenu.add_separator()
+        filemenu.add_command(label="Import image", command=self.imports)
         filemenu.add_separator()
         filemenu.add_command(label="Export image to PNG", command=self.export)
         exportmenu = tk.Menu(filemenu)
@@ -679,6 +682,17 @@ class Application(tk.Frame):
                 title="Export to file")
         if filen != ():
             self.pixelgrid.getTkImage(1).write(filen)
+    
+    def imports(self):
+        filen = filedialog.askopenfilename(
+                defaultextension=".png",
+                title="Import file")
+        if filen != ():
+            self.statusbar.config(text="Please wait")
+            self.pixelgrid = importer.importpixelgrid(filen)
+            self.statusbar.config(text="Imported file successfully.")
+            self.redraw(True, True, True)
+            
 
     def exportstrip(self, height):
         filen = filedialog.asksaveasfilename(
