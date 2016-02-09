@@ -3,11 +3,19 @@ import math
 import pixelgrid
 
 class ColorSet:
-    colors = []
-    maxcolors = 16
-
     def __init__(self, maxcolors):
         self.maxcolors = maxcolors
+        self.colors = []
+    
+    @property
+    def palette(self):
+        if len(self.colors) == self.maxcolors:
+            return list(self.colors)
+        else:
+            c = list(self.colors)
+            while (len(c) != self.maxcolors):
+                c.append((0,0,0))
+            return c
 
     def _maintain(self):
         if len(self.colors) <= self.maxcolors:
@@ -74,15 +82,15 @@ def importpixelgrid(filen):
     image = Image.open(filen).convert("RGB")
     
     # Build palette
-    for i in range(0, min(image.width, 255)):
-        for j in range(0, min(image.height, 255)):
+    for i in range(0, min(image.width, 256)):
+        for j in range(0, min(image.height, 256)):
             pixel = image.getpixel((i,j))
             colors.addColor(pixel)
 
-    grid = pixelgrid.PixelGrid(colors.colors)
+    grid = pixelgrid.PixelGrid(colors.palette)
     
-    for i in range(0, min(image.width, 255)):
-        for j in range(0, min(image.height, 255)):
+    for i in range(0, min(image.width, 256)):
+        for j in range(0, min(image.height, 256)):
             pixel = image.getpixel((i,j))
             val = colors.nearestIndex(pixel)
             if val != 0:
