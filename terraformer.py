@@ -78,6 +78,8 @@ class Application(tk.Frame):
         filemenu.add_command(label="Import image", command=self.imports)
         filemenu.add_separator()
         filemenu.add_command(label="Export image to PNG", command=self.export)
+        filemenu.add_command(label="Export selection to PNG", 
+                command=self.exportselection)
         exportmenu = tk.Menu(filemenu)
         exportmenu.add_command(label="8x8", 
                                command=lambda: self.exportstrip(1))
@@ -682,6 +684,15 @@ class Application(tk.Frame):
                 title="Export to file")
         if filen != ():
             self.pixelgrid.getTkImage(1).write(filen)
+
+    def exportselection(self):
+        filen = filedialog.asksaveasfilename(
+                defaultextension=".png",
+                title="Export to file")
+        if filen != ():
+            PixelSubset(
+                self.pixelgrid,
+                self.getCurrentSelection()).getTkImage(1).write(filen)
     
     def imports(self):
         filen = filedialog.askopenfilename(
