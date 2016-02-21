@@ -525,7 +525,7 @@ class Application(tk.Frame):
         y = int(self.imagegrab.canvasy(event.y))
         tool.undopalette()
         newcolor = self.imagegrabtkimg.get(x,y)
-        self.pixelgrid.palette[i] = newcolor
+        self.pixelgrid.palette[self.currentcolor] = newcolor
         self.redraw(True, True, True)
 
     def selectcolor(self, i):
