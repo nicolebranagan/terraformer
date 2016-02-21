@@ -128,8 +128,12 @@ class Application(tk.Frame):
         menubar.add_cascade(label="Palette", menu=palettemenu)
 
         debugmenu = tk.Menu(menubar)
-        debugmenu.add_command(label="Redraw", command=self.redraw)
-        menubar.add_cascade(label="Debug", menu=debugmenu)
+        debugmenu.add_command(
+                label="About", command=lambda: (
+                    messagebox.showinfo("About",
+                        "Terraformer v0.0.0\n(c) Nicole 2015"
+                        )))
+        menubar.add_cascade(label="Info", menu=debugmenu)
         
         # Shifters
         shiftframe = tk.Frame(self)
@@ -521,7 +525,7 @@ class Application(tk.Frame):
         y = int(self.imagegrab.canvasy(event.y))
         tool.undopalette()
         newcolor = self.imagegrabtkimg.get(x,y)
-        self.pixelgrid.palette[self.currentcolor] = newcolor
+        self.pixelgrid.palette[i] = newcolor
         self.redraw(True, True, True)
 
     def selectcolor(self, i):
