@@ -285,10 +285,18 @@ class Application(tk.Frame):
         self.palettecanvas.bind("<Button-3>", self.rclickpalettecanvas)
         self.palettecanvas.bind("<Double-Button-1>", self.dclickpalettecanvas)
 
+        # Image grabber
+        self.imagegrab = tk.Canvas(self, width=512, height=64)
+        self.imagegrab.grid(row=3,column=2)
+        self.imagegrabimg = self.imagegrab.create_image(0, 0, anchor=tk.NW)
+        self.imagegrabtkimg = tk.PhotoImage(file="./images/nes.gif")
+        self.imagegrab.itemconfig(self.imagegrabimg, image=self.imagegrabtkimg)
+        self.imagegrab.bind("<Button-1>", self.clickimagegrab)
+
         # Create status bar
         self.statusbar = tk.Label(self, bd=1, relief=tk.SUNKEN, anchor=tk.W,
                                   text="Welcome to Terraformer")
-        self.statusbar.grid(row=3, column=0, columnspan=4, sticky=tk.W+tk.E)
+        self.statusbar.grid(row=4, column=0, columnspan=4, sticky=tk.W+tk.E)
 
     def new(self):
         # Create new photoimage
@@ -507,7 +515,15 @@ class Application(tk.Frame):
             self.pixelgrid.palette[i] = newcolor
             self.drawpalette()
             self.redraw()
-   
+    
+    def clickimagegrab(self, event):
+        x = int(self.imagegrab.canvasx(event.x))
+        y = int(self.imagegrab.canvasy(event.y))
+        tool.undopalette()
+        newcolor = self.imagegrabtkimg.get(x,y)
+        self.pixelgrid.palette[self.currentcolor] = newcolor
+        self.redraw(True, True, True)
+
     def selectcolor(self, i):
         self.midstep = False
         self.currentcolor = i
