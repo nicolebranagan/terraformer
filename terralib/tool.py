@@ -1,4 +1,4 @@
-from pixelgrid import *
+from terralib.pixelgrid import *
 import math
 import copy
 import queue

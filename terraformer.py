@@ -10,10 +10,10 @@ import json
 import time
 import os
 
-import palette
-import tool
-from pixelgrid import *
-import importer
+import terralib.palette as palette
+import terralib.tool as tool
+from terralib.pixelgrid import *
+import terralib.importer as importer
 
 class Application(tk.Frame):
     def __init__(self, master=None):

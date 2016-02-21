@@ -1,6 +1,6 @@
 from PIL import Image
 import math
-import pixelgrid
+import terralib.pixelgrid as pixelgrid
 
 class ColorSet:
     def __init__(self, maxcolors):
