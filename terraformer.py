@@ -583,6 +583,28 @@ class Application(tk.Frame):
         tool.Delete().step1(select[0], select[1], select[2], select[3], 0)
         self.redraw()
 
+    @property
+    def clipboard(self):
+        clips = None
+        try:
+            clipboard = self.master.clipboard_get()
+            if (clipboard == ""):
+                clips = None
+            else:
+                clipboard = json.loads(clipboard)
+                clips = PixelGrid(self.pixelgrid.palette)
+                clips.load(clipboard)
+        except Exception as e:
+            pass
+
+        return clips
+
+    @clipboard.setter
+    def clipboard(self, value):
+        self.master.clipboard_clear()
+        if value is not None:
+            self.master.clipboard_append(json.dumps(value.dump()))
+
     def cut (self, event=None): 
         self.copy()
         self.delete()

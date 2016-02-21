@@ -238,5 +238,8 @@ class PixelSubset(PixelGrid):
                         self._tiles[(i-minx, j-miny)] = copy.deepcopy(
                                 parent._tiles[(i,j)])
 
+        self._pages = []
+        self._pages.append(self._tiles)
+
 
 
