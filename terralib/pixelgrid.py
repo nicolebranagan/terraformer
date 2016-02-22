@@ -32,8 +32,10 @@ class PixelGrid:
         else:
             return 0
 
-    def getColor(self, x, y):
-        return self.palette[self.get(x,y)]
+    def getColor(self, x, y, tileset=None):
+        if tileset is None:
+            tileset = self._tiles
+        return self.palette[self.get(x,y,tileset)]
 
     def set(self, x, y, val):
         if x < 0 or x >= self.width*8 or y < 0 or y >= self.height*8:
@@ -107,15 +109,20 @@ class PixelGrid:
                         to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
         return photo
 
-    def drawTkSubset(self, photo, zoom, x, y, rx, ry, nx, ny, block=True):
+    def drawTkSubset(self, photo, zoom, x, y, rx, ry, nx, ny, block=True, p=-1):
         if block:
             photo.put("#%02x%02x%02x" % self.palette[0], 
                       to=(nx,ny,nx+(8*rx*zoom),ny+(8*ry*zoom)))
+        if p == -1:
+            tileset = self._tiles
+        else:
+            tileset = self._pages[p]    
+
         for i in range(0, 8*rx):
             for j in range(0, 8*ry):
-                if self.get(i + x*8,j + y*8) != 0:
+                if self.get(i + x*8,j + y*8, tileset) != 0:
                     photo.put(
-                        "#%02x%02x%02x" % self.getColor(i + x*8,j + y*8), 
+                        "#%02x%02x%02x" % self.getColor(i + x*8,j + y*8, tileset), 
                         to=(nx + i*zoom, ny + j*zoom,
                             nx + i*zoom+(zoom), ny + j*zoom+(zoom)))
         return photo
