@@ -107,18 +107,23 @@ class PixelGrid:
                         to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
         return photo
 
-    def getTkSubset(self, zoom, x, y, r):
-        photo = tk.PhotoImage(width=8*r*zoom, 
-                              height=8*r*zoom)
-        photo.put("#%02x%02x%02x" % self.palette[0], 
-                  to=(0,0,8*r*zoom,8*r*zoom))
-        for i in range(0, 8*r):
-            for j in range(0, 8*r):
+    def drawTkSubset(self, photo, zoom, x, y, rx, ry, nx, ny, block=True):
+        if block:
+            photo.put("#%02x%02x%02x" % self.palette[0], 
+                      to=(nx,ny,nx+(8*rx*zoom),ny+(8*ry*zoom)))
+        for i in range(0, 8*rx):
+            for j in range(0, 8*ry):
                 if self.get(i + x*8,j + y*8) != 0:
                     photo.put(
                         "#%02x%02x%02x" % self.getColor(i + x*8,j + y*8), 
-                        to=(i*zoom, j*zoom,i*zoom+(zoom), j*zoom+(zoom)))
+                        to=(nx + i*zoom, ny + j*zoom,
+                            nx + i*zoom+(zoom), ny + j*zoom+(zoom)))
         return photo
+
+    def getTkSubset(self, zoom, x, y, r):
+        photo = tk.PhotoImage(width=8*r*zoom,
+                              height=8*r*zoom)
+        return self.drawTkSubset(photo, zoom, x, y, r, r, 0, 0)
 
     def getTkStrip(self, height):
         max_ = self._getmaxtuple()
