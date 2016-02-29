@@ -761,7 +761,7 @@ class Application(tk.Frame):
    
     def loadimagegrab(self):
         filen = filedialog.askopenfilename(
-                filetypes=(("Compatible images (GIF, PNG, PGM/PPM)", "*"),
+                filetypes=(("Terraformer, GIF, PNG, PGM/PPM images", "*"),
                            ("All files", "*")),
                 title="Load source image",
                 initialdir=self.config["lastdir"])
