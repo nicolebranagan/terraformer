@@ -322,13 +322,16 @@ class Application(tk.Frame):
         self.redraw()
 
     def drawpalette(self):
-        self.palette = tk.PhotoImage(width=512, height=32)
-        i = 0
-        for c in self.pixelgrid.palette:
-            self.palette.put("#%02x%02x%02x" % c,
-                             to=(i*32,0,(i+1)*32,32))
-            i = i+1
+        self.palette = self.drawpalettestrip(self.pixelgrid.palette)
         self.palettecanvas.itemconfig(self.paletteimage, image=self.palette)
+
+    def drawpalettestrip(self, palette):
+        img = tk.PhotoImage(width=512, height=32)
+        i = 0
+        for c in palette:
+            img.put("#%02x%02x%02x" % c, to=(i*32,0,(i+1)*32,32))
+            i = i+1
+        return img
 
     def resetscale(self, event):
         test = math.floor(self.multiplescale.get())
@@ -764,7 +767,13 @@ class Application(tk.Frame):
                 initialdir=self.config["lastdir"])
         if filen != () and filen != "":
             try:
-                self.imagegrabtkimg = tk.PhotoImage(file=filen)
+                if os.path.splitext(filen)[1] == ".terra":
+                    with open(filen, "r") as fileo:
+                        self.imagegrabtkimg = self.drawpalettestrip(
+                                PixelGrid(self.palette).load(
+                                    json.load(fileo)).palette)
+                else:
+                     self.imagegrabtkimg = tk.PhotoImage(file=filen)
                 self.imagegrab.config(height=self.imagegrabtkimg.height())
                 self.imagegrab.itemconfig(
                         self.imagegrabimg, image=self.imagegrabtkimg)

@@ -188,6 +188,7 @@ class PixelGrid:
                 self._pages[i][loc] = PixelTile().load(page[tile])
 
         self._tiles = self._pages[0]
+        return self
 
     def changepage(self, pagenum):
         while len(self._pages) < (pagenum+1):
