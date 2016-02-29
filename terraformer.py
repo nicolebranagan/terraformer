@@ -292,7 +292,7 @@ class Application(tk.Frame):
         # Image grabber
         loadimagegrab = tk.Button(self, text="Load new source image",
                                   command=self.loadimagegrab)
-        loadimagegrab.grid(row=3, column=0, columnspan=2, sticky=tk.E)
+        loadimagegrab.grid(row=3, column=0, columnspan=2, sticky=tk.NE)
         self.imagegrab = tk.Canvas(self, width=512, height=64)
         self.imagegrab.grid(row=3,column=2)
         self.imagegrabimg = self.imagegrab.create_image(0, 0, anchor=tk.NW)
@@ -524,7 +524,6 @@ class Application(tk.Frame):
             self.redraw()
     
     def clickimagegrab(self, event):
-        print(dir(self.imagegrabtkimg))
         x = int(self.imagegrab.canvasx(event.x))
         y = int(self.imagegrab.canvasy(event.y))
         tool.undopalette()
