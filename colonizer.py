@@ -65,6 +65,8 @@ class Application(tk.Frame):
                 self.resetgrids()
 
     def changegrid(self, *args):
+        if self.loadergrid.get() == "Nothing loaded":
+            return
         self.currentgrid = self.tilegrid.get_grid(self.loadergrid.get())
         self.tilepalettetkimg = self.currentgrid.getTkImage(2)
         self.tilepalette.itemconfig(self.tilepaletteimage, 

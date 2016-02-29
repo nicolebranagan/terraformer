@@ -290,6 +290,9 @@ class Application(tk.Frame):
         self.palettecanvas.bind("<Double-Button-1>", self.dclickpalettecanvas)
 
         # Image grabber
+        loadimagegrab = tk.Button(self, text="Load new source image",
+                                  command=self.loadimagegrab)
+        loadimagegrab.grid(row=3, column=0, columnspan=2, sticky=tk.E)
         self.imagegrab = tk.Canvas(self, width=512, height=64)
         self.imagegrab.grid(row=3,column=2)
         self.imagegrabimg = self.imagegrab.create_image(0, 0, anchor=tk.NW)
@@ -521,6 +524,7 @@ class Application(tk.Frame):
             self.redraw()
     
     def clickimagegrab(self, event):
+        print(dir(self.imagegrabtkimg))
         x = int(self.imagegrab.canvasx(event.x))
         y = int(self.imagegrab.canvasy(event.y))
         tool.undopalette()
@@ -746,14 +750,28 @@ class Application(tk.Frame):
             self.statusbar.config(text="Imported file successfully.")
             self.redraw(True, True, True)
             
-
     def exportstrip(self, height):
         filen = filedialog.asksaveasfilename(
                 defaultextension=".png",
                 title="Export strip to file")
         if filen != ():
             self.pixelgrid.getTkStrip(height).write(filen)
-    
+   
+    def loadimagegrab(self):
+        filen = filedialog.askopenfilename(
+                filetypes=(("Compatible images (GIF, PNG, PGM/PPM)", "*"),
+                           ("All files", "*")),
+                title="Load source image",
+                initialdir=self.config["lastdir"])
+        if filen != () and filen != "":
+            try:
+                self.imagegrabtkimg = tk.PhotoImage(file=filen)
+                self.imagegrab.config(height=self.imagegrabtkimg.height())
+                self.imagegrab.itemconfig(
+                        self.imagegrabimg, image=self.imagegrabtkimg)
+            except Exception as error:
+                messagebox.showerror("Load failed", error)
+
     def paginate(self, by):
         self.currentpage = self.currentpage + by
         self.pixelgrid.changepage(self.currentpage)

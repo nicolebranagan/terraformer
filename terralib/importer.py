@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageTk
 import math
 import terralib.pixelgrid as pixelgrid
 
@@ -97,3 +97,4 @@ def importpixelgrid(filen):
                 grid.set(i,j,val)
 
     return grid
+
