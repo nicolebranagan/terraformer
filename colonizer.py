@@ -156,6 +156,14 @@ class Application(tk.Frame):
                         selection[0] + i, 
                         selection[1] + j)
         self.redraw()
+    
+    def drawblock(self, i, j, block):
+        width = max([x[0] for x in block.keys()])
+        height = max([x[1] for x in block.keys()])
+        self.tilegrid.clear(i, j, width, height)
+        for loc in block:
+           self.tilegrid.layers[self.currentlayer][(
+                   i + loc[0], j + loc[1])] = block[loc]
 
     def clicktilepalette(self, event):
         if (self.loadergrid.get() == "" or
@@ -194,6 +202,8 @@ class Application(tk.Frame):
                                 selection[3] * 2 * 8)
 
 class TileGrid:
+    blank = (-1, -1, -1, -1)
+
     def __init__(self):
         self.width = 32
         self.height = 32
@@ -206,6 +216,15 @@ class TileGrid:
             self.layers.append({})
         self.layers[l][(x,y)] = (grid, gp, gx, gy)
 
+    def get(self, l, x, y):
+        while(len(self.layers) < l+1):
+            self.layers.append({})
+        
+        if (x, y) in self.layers[l]:
+            return self.layers[l][(x,y)]
+        else:
+            return self.blank
+
     def draw(self, zoom):
         photo = tk.PhotoImage(width=8*self.width*zoom,
                               height=8*self.height*zoom)
@@ -214,6 +233,8 @@ class TileGrid:
         for layer in self.layers:
             for loc in layer:
                 gset = layer[loc]
+                if gset == self.blank:
+                    continue
                 x = loc[0]*zoom*8
                 y = loc[1]*zoom*8
                 self.get_grid(gset[0]).drawTkSubset(
@@ -221,7 +242,26 @@ class TileGrid:
                         layer == self.layers[0], gset[1])
         return photo
                 
+    def clear(self, l, x, y, w, h):
+        if l >= len(self.layers):   
+            return
 
+        for i in range(0, w):
+            for j in range(0, h):
+                if (i+x,j+y) in self.layers[l]:
+                    del(self.layers[l][(i+x,j+y)])
+
+    def get_block(self, l, x, y, w, h):
+        if l >= len(self.layers):   
+            return {}
+
+        block = {}
+        for i in range(0, w):
+            for j in range(0, h):
+                if (i+x,j+y) in self.layers[l]:
+                    block[i,j] = self.layers[l][(i+x,j+y)]
+        return block
+    
     def add_dependency(self, filename, grid):
         self.grids[os.path.basename(filename)] = (filename, grid)
 
