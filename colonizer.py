@@ -195,8 +195,8 @@ class Application(tk.Frame):
                 self.loadergrid.get() == "Nothing loaded"):
             return
 
-        x = math.floor(self.tileimg.canvasx(event.x)/(8*2))
-        y = math.floor(self.tileimg.canvasy(event.y)/(8*2))
+        x = math.ceil(self.tileimg.canvasx(event.x)/(8*2))
+        y = math.ceil(self.tileimg.canvasy(event.y)/(8*2))
         
         if (x,y) is not (self.selection[0], self.selection[1]):
             self.selection = (self.selection[0],
@@ -217,8 +217,8 @@ class Application(tk.Frame):
         self.resetselection()
     
     def rmotiontileimg(self, event):
-        x = math.floor(self.tileimg.canvasx(event.x)/(8*2))
-        y = math.floor(self.tileimg.canvasy(event.y)/(8*2))
+        x = math.ceil(self.tileimg.canvasx(event.x)/(8*2))
+        y = math.ceil(self.tileimg.canvasy(event.y)/(8*2))
         
         if (x,y) is not (self.selection[0], self.selection[1]):
             self.selection = (self.selection[0],
