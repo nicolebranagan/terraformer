@@ -21,6 +21,7 @@ class Application(tk.Frame):
         self.selection = (0, 0, 1, 1)
         self.createWidgets()
         self.currentlayer = 0
+        self.blockselect = False
         
         self.config = {
             "lastdir" : "./"}
@@ -69,6 +70,8 @@ class Application(tk.Frame):
                 0, 0, anchor=tk.NW)
         self.tileimg.bind("<Button-1>", self.clicktileimg)
         self.tileimg.bind("<B1-Motion>", self.motiontileimg)
+        self.tileimg.bind("<Button-3>", self.rclicktileimg)
+        self.tileimg.bind("<B3-Motion>", self.rmotiontileimg)
 
     def open(self):
         filen = filedialog.askopenfilename(
@@ -142,6 +145,11 @@ class Application(tk.Frame):
             self.settileimgarea(x,y)
 
     def settileimgarea(self, x, y):
+        if self.blockselect:
+            self.drawblock(x, y, self.currentblock)
+            self.redraw()
+            return
+
         selection = (min(self.selection[0], self.selection[2]),
                      min(self.selection[1], self.selection[3]),
                      max(self.selection[0], self.selection[2]),
@@ -160,18 +168,25 @@ class Application(tk.Frame):
     def drawblock(self, i, j, block):
         width = max([x[0] for x in block.keys()])
         height = max([x[1] for x in block.keys()])
-        self.tilegrid.clear(i, j, width, height)
+        self.tilegrid.clear(self.currentlayer, i, j, width, height)
         for loc in block:
-           self.tilegrid.layers[self.currentlayer][(
+            if block[loc] == self.tilegrid.blank:
+                continue
+            self.tilegrid.layers[self.currentlayer][(
                    i + loc[0], j + loc[1])] = block[loc]
+        self.redraw()
 
     def clicktilepalette(self, event):
+        if (self.blockselect):
+            self.changepage()
+
         if (self.loadergrid.get() == "" or
                 self.loadergrid.get() == "Nothing loaded"):
             return
 
         x = math.floor(self.tileimg.canvasx(event.x)/(8*2))
         y = math.floor(self.tileimg.canvasy(event.y)/(8*2))
+        self.blockselect = False
         self.selection = (x, y, x+1, y+1)
         self.resetselection()
     
@@ -190,11 +205,46 @@ class Application(tk.Frame):
                               y)
         self.resetselection()
     
+    def rclicktileimg(self, event):
+        if (self.loadergrid.get() == "" or
+                self.loadergrid.get() == "Nothing loaded"):
+            return
+
+        x = math.floor(self.tileimg.canvasx(event.x)/(8*2))
+        y = math.floor(self.tileimg.canvasy(event.y)/(8*2))
+        self.selection = (x, y, x+1, y+1)
+        self.blockselect = True
+        self.resetselection()
+    
+    def rmotiontileimg(self, event):
+        x = math.floor(self.tileimg.canvasx(event.x)/(8*2))
+        y = math.floor(self.tileimg.canvasy(event.y)/(8*2))
+        
+        if (x,y) is not (self.selection[0], self.selection[1]):
+            self.selection = (self.selection[0],
+                              self.selection[1],
+                              x,
+                              y)
+        self.resetselection()
+    
     def resetselection(self):
         selection = (min(self.selection[0], self.selection[2]),
                      min(self.selection[1], self.selection[3]),
                      max(self.selection[0], self.selection[2]),
                      max(self.selection[1], self.selection[3]))
+        
+        if self.blockselect:  
+            self.currentblock = self.tilegrid.get_block(
+                    self.currentlayer,
+                    selection[0], selection[1],
+                    selection[2] - selection[0],
+                    selection[3] - selection[1])
+            self.tilepalettetkimg = self.tilegrid.draw_block(self.currentblock, 
+                                                             2)
+            self.tilepalette.itemconfig(self.tilepaletteimage, 
+                                        image=self.tilepalettetkimg)
+            return
+
         self.tilepalette.coords(self.tilepaletteselection, 
                                 selection[0] * 2 * 8,
                                 selection[1] * 2 * 8,
@@ -224,6 +274,26 @@ class TileGrid:
             return self.layers[l][(x,y)]
         else:
             return self.blank
+
+    def draw_block(self, block, zoom):
+        if len(block) == 0:
+            return tk.PhotoImage(width=0, height=0)
+        width = max([x[0] for x in block.keys()])
+        height = max([x[1] for x in block.keys()])
+        photo = tk.PhotoImage(width=8*width*zoom,
+                              height=8*height*zoom)
+        photo.put("#000000", 
+                  to=(0,0,8*width*zoom,8*height*zoom))
+        for loc in block:
+            gset = block[loc]
+            if gset == self.blank:
+                continue
+            x = loc[0]*zoom*8
+            y = loc[1]*zoom*8
+            self.get_grid(gset[0]).drawTkSubset(
+                    photo, zoom, gset[2], gset[3], 1, 1, x, y,
+                    True, gset[1])
+        return photo
 
     def draw(self, zoom):
         photo = tk.PhotoImage(width=8*self.width*zoom,
@@ -259,7 +329,9 @@ class TileGrid:
         for i in range(0, w):
             for j in range(0, h):
                 if (i+x,j+y) in self.layers[l]:
-                    block[i,j] = self.layers[l][(i+x,j+y)]
+                    block[(i,j)] = self.layers[l][(i+x,j+y)]
+                else:
+                    block[(i,j)] = self.blank
         return block
     
     def add_dependency(self, filename, grid):
