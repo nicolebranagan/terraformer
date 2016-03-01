@@ -18,8 +18,20 @@ class Application(tk.Frame):
         self.pack()
 
         self.tilegrid = TileGrid()
-
+        self.selection = (0, 0, 1, 1)
         self.createWidgets()
+        self.currentlayer = 0
+        
+        self.config = {
+            "lastdir" : "./"}
+        
+        try:
+            with open("./config.json", "r") as fileo:
+                self.config = json.load(fileo)
+        except IOError:
+            pass # Just use default
+
+        self.redraw()
 
     def createWidgets(self):
         # Create menu
@@ -38,24 +50,32 @@ class Application(tk.Frame):
         self.loader.grid(row=0, column=1)
         self.pageflip = Flipper(self, onchange=self.changepage)
         self.pageflip.grid(row=0, column=1, sticky=tk.E)
+        self.layerflip = Flipper(self, onchange=self.changelayer, top=8)
+        self.layerflip.grid(row=0, column=2, sticky=tk.E)
 
         # Create panels
         self.tilepalette = tk.Canvas(self, width=512, height=512)
         self.tilepalette.grid(row=1, column=0, columnspan=2)
         self.tilepaletteimage = self.tilepalette.create_image(
                 0, 0, anchor=tk.NW)
-        
+        self.tilepaletteselection = self.tilepalette.create_rectangle(
+                1, 1, 16, 16, outline="grey")
+        self.tilepalette.bind("<Button-1>", self.clicktilepalette)
+        self.tilepalette.bind("<B1-Motion>", self.motiontilepalette)
+
         self.tileimg = tk.Canvas(self, width=512, height=512)
         self.tileimg.grid(row=1, column=2)
         self.tileimgimage = self.tileimg.create_image(
                 0, 0, anchor=tk.NW)
         self.tileimg.bind("<Button-1>", self.clicktileimg)
+        self.tileimg.bind("<B1-Motion>", self.motiontileimg)
 
     def open(self):
         filen = filedialog.askopenfilename(
                 filetypes=(("Terraformer images", "*.terra"),
                            ("All files", "*")),
-                title="Open paletted image")
+                title="Open paletted image",
+                initialdir=self.config["lastdir"])
         if filen != () and filen != "":
             with open(filen, "r") as fileo:
                 pixelgrid = PixelGrid([(0,0,0)])
@@ -88,17 +108,90 @@ class Application(tk.Frame):
         self.tilepalette.itemconfig(self.tilepaletteimage, 
                                     image=self.tilepalettetkimg)
 
+    def changelayer(self):
+        self.currentlayer = self.layerflip.value
+
     def redraw(self):
         self.tileimgtkimg = self.tilegrid.draw(2)
         self.tileimg.itemconfig(self.tileimgimage,
                                 image = self.tileimgtkimg)
 
     def clicktileimg(self, event):
+        if (self.loadergrid.get() == "" or
+                self.loadergrid.get() == "Nothing loaded"):
+            return
+
         x = math.floor(self.tileimg.canvasx(event.x)/(8*2))
         y = math.floor(self.tileimg.canvasy(event.y)/(8*2))
-        self.tilegrid.set(x, y, 0, self.loadergrid.get(), 
-                          self.pageflip.value, 0, 0)
+
+        self.settileimgarea(x, y)
+        self.lastclick = (x, y)
+       
+    def motiontileimg(self, event):
+        if (self.loadergrid.get() == "" or
+                self.loadergrid.get() == "Nothing loaded"):
+            return
+
+        x = math.floor(self.tileimg.canvasx(event.x)/(8*2))
+        y = math.floor(self.tileimg.canvasy(event.y)/(8*2))
+        width = abs(self.selection[0] - self.selection[2])
+        height = abs(self.selection[1] - self.selection[3])
+        
+        if ((x - self.lastclick[0]) % width == 0 and
+            (y - self.lastclick[1]) % height == 0):
+            self.settileimgarea(x,y)
+
+    def settileimgarea(self, x, y):
+        selection = (min(self.selection[0], self.selection[2]),
+                     min(self.selection[1], self.selection[3]),
+                     max(self.selection[0], self.selection[2]),
+                     max(self.selection[1], self.selection[3]))
+        
+        for i in range(0, selection[2]-selection[0]):
+            for j in range(0, selection[3]-selection[1]):
+                self.tilegrid.set(
+                        x + i, y + j, self.currentlayer, 
+                        self.loadergrid.get(), 
+                        self.pageflip.value, 
+                        selection[0] + i, 
+                        selection[1] + j)
         self.redraw()
+
+    def clicktilepalette(self, event):
+        if (self.loadergrid.get() == "" or
+                self.loadergrid.get() == "Nothing loaded"):
+            return
+
+        x = math.floor(self.tileimg.canvasx(event.x)/(8*2))
+        y = math.floor(self.tileimg.canvasy(event.y)/(8*2))
+        self.selection = (x, y, x+1, y+1)
+        self.resetselection()
+    
+    def motiontilepalette(self, event):
+        if (self.loadergrid.get() == "" or
+                self.loadergrid.get() == "Nothing loaded"):
+            return
+
+        x = math.floor(self.tileimg.canvasx(event.x)/(8*2))
+        y = math.floor(self.tileimg.canvasy(event.y)/(8*2))
+        
+        if (x,y) is not (self.selection[0], self.selection[1]):
+            self.selection = (self.selection[0],
+                              self.selection[1],
+                              x,
+                              y)
+        self.resetselection()
+    
+    def resetselection(self):
+        selection = (min(self.selection[0], self.selection[2]),
+                     min(self.selection[1], self.selection[3]),
+                     max(self.selection[0], self.selection[2]),
+                     max(self.selection[1], self.selection[3]))
+        self.tilepalette.coords(self.tilepaletteselection, 
+                                selection[0] * 2 * 8,
+                                selection[1] * 2 * 8,
+                                selection[2] * 2 * 8,
+                                selection[3] * 2 * 8)
 
 class TileGrid:
     def __init__(self):
@@ -109,11 +202,15 @@ class TileGrid:
         self.grids = {}
 
     def set(self, x, y, l, grid, gp, gx, gy):
+        while(len(self.layers) < l+1):
+            self.layers.append({})
         self.layers[l][(x,y)] = (grid, gp, gx, gy)
 
     def draw(self, zoom):
         photo = tk.PhotoImage(width=8*self.width*zoom,
                               height=8*self.height*zoom)
+        photo.put("#000000", 
+                  to=(0,0,8*self.width*zoom,8*self.height*zoom))
         for layer in self.layers:
             for loc in layer:
                 gset = layer[loc]
