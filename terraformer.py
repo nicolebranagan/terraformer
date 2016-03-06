@@ -131,7 +131,7 @@ class Application(tk.Frame):
         debugmenu.add_command(
                 label="About", command=lambda: (
                     messagebox.showinfo("About",
-                        "Terraformer v0.0.0\n(c) Nicole 2015"
+                        "Terraformer v0.0.0\n(c) Nicole Branagan 2016"
                         )))
         menubar.add_cascade(label="Info", menu=debugmenu)
         

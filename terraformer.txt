@@ -1,0 +1,47 @@
+TERRAFORMER
+
+Cross-platform, paletted, pixel-graphics editor by Nicole Express
+
+I. How to run
+
+Terraformer is a graphics editor that requires a functioning Python 3 environment. Once python3 is installed, it can be run as a UNIX shell script, or simply by running the command "python3 terraformer.py".
+
+II. The interface
+
+a. The Selection Panel
+
+Upon opening Terraformer there is a blank file consisting of a single 256x256 "page". Each "page" is made up of 8x8 tiles. The full page is displayed in the left panel at 2x size. In this panel you can select tiles to edit using the left mouse button, or form an arbitrary selection with the right mouse button. Copying and pasting have effect in this panel.
+
+Above the editing panel, you can find a number of command buttons. These will perform a number of actions; the directinal arrows will shift the selection one pixel in the given direction.
+
+The size of the selection is controlled by the scaler beneath the panel. The page flipper also allows you to add additional pages, and to delete them by clicking "X". Only the last page can be deleted.
+
+By clicking the delete key, the current selection will be deleted and replaced with a blank region with the first palette color. All actions in the selection panel are done at the 8x8 tile level.
+
+b. The Editing Panel
+
+In the right panel, the image can be edited. A number of tools are provided to the right of the editing panel. By right clicking the editing panel, the color underneath the mouse will become the currently selected color, and will be used with whatever tool is selected.
+
+Please note that the tools region of effect is not limited to the area shown in the editing panel; for example, the "flood" tool will cover the entire region of a single color, regardless of whether it is visible in the editing panel or not.
+
+c. The Palette Panel
+
+The palette is shown beneath the editing panel. This is a set of 16 colors, by default the EGA palette. A few other palettes are preloaded in the "Palette" menu, but to change the palette at will, simply double-clicking the color you wish to change is sufficient. Terraformer images are paletted, so changing a color will also change everything in the image that uses that color.
+
+If you right click on a color, everything in the current selection (in the selection panel) that matches the currently selected color will be changed to the color you right-clicked. This feature makes it easy to try out different colors.
+
+Beneath the palette panel is an image. By default, this is an NES palette. By clicking this image, the currently selected color will change to the color you click. You can load any image by simply clicking "load new source image".
+
+III. Opening, saving, importing, and exporting
+
+Terraformer files are limited to "pages" of 256x256 images with a limited color palette. Therefore, no other image files can be directly saved or loaded except for the Terraformer file format (a simple JSON file containing tiles and palette). To load or save a Terraformer file, simply use the "File" menu. Ctrl-S saves the current document.
+
+To load outside files, you can use the "Import" command. However, be cautious. The import command has the following limitations:
+* Only the top-left 256x256 pixel region will be imported as a single page.
+* The importer will reduce the image to 16 colors, assuming it has more than that.
+
+The program also supports exporting images to the .PNG format. You can export a single page, a selected region, or a page as a "strip" of tiles of a given size, which is convenient for games programming.
+
+IV. License
+
+Terraformer is (c) Nicole Branagan 2016 and is available subject to the MIT license.
