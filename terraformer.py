@@ -48,10 +48,15 @@ class Application(tk.Frame):
         self.master.title("Terraformer")
         
         self.master.bind("<Delete>", self.delete)
+        self.master.bind("<Control-X>", self.cut)
         self.master.bind("<Control-x>", self.cut)
+        self.master.bind("<Control-C>", self.copy)
         self.master.bind("<Control-c>", self.copy)
+        self.master.bind("<Control-V>", self.paste)
         self.master.bind("<Control-v>", self.paste)
+        self.master.bind("<Control-Z>", tool.undo)
         self.master.bind("<Control-z>", tool.undo)
+        self.master.bind("<Control-S>", self.save)
         self.master.bind("<Control-s>", self.save)
         
         self.master.bind("<Left>", lambda x: self.reselecttile(
@@ -192,6 +197,7 @@ class Application(tk.Frame):
                 self.multiple * self.basezoom * 8,
                 outline="grey")
         self.imagecanvas.bind("<Button-1>", self.clickimagecanvas)
+        self.imagecanvas.bind("<Button-2>", self.mclickimagecanvas)
         self.imagecanvas.bind("<Button-3>", self.rclickimagecanvas)
         self.imagecanvas.bind("<B3-Motion>", self.rmotionimagecanvas)
 
@@ -366,6 +372,12 @@ class Application(tk.Frame):
                 self.imagecanvas.canvasy(event.y) / 
                 (self.basezoom * 8))
         self.reselecttile(x, y)
+
+    def mclickimagecanvas(self, event):
+        if (self.selecting):
+            self.copy()
+        else:
+            self.paste()
 
     def rclickimagecanvas(self, event):
         self.selecting = True
