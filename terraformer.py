@@ -135,6 +135,13 @@ class Application(tk.Frame):
                 command=lambda: self.setpalette(palette.none))
         menubar.add_cascade(label="Palette", menu=palettemenu)
 
+        optionsmenu = tk.Menu(menubar)
+        self.transparentexport = tk.BooleanVar()
+        self.transparentexport.set(True)
+        optionsmenu.add_checkbutton(label="Export with opaque background",
+                                    variable=self.transparentexport)
+        menubar.add_cascade(label="Options", menu=optionsmenu)
+
         debugmenu = tk.Menu(menubar)
         debugmenu.add_command(
                 label="About", command=lambda: (
@@ -746,7 +753,8 @@ class Application(tk.Frame):
                 defaultextension=".png",
                 title="Export to file")
         if filen != ():
-            self.pixelgrid.getTkImage(1).write(filen)
+            self.pixelgrid.getTkImage(1, 
+                    block=self.transparentexport.get()).write(filen)
 
     def exportselection(self):
         filen = filedialog.asksaveasfilename(
@@ -755,7 +763,8 @@ class Application(tk.Frame):
         if filen != ():
             PixelSubset(
                 self.pixelgrid,
-                self.getCurrentSelection()).getTkImage(1).write(filen)
+                self.getCurrentSelection()).getTkImage(1,
+                    block=self.transparentexport.get()).write(filen)
     
     def imports(self, colors):
         filen = filedialog.askopenfilename(

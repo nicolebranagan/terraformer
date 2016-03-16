@@ -96,11 +96,12 @@ class PixelGrid:
                 if (self.get(x, y, oldtiles) != self.get(i,j, oldtiles)):
                     self.set(i,j,self.get(x,y,oldtiles))
 
-    def getTkImage(self, zoom):
+    def getTkImage(self, zoom, block=True):
         photo = tk.PhotoImage(width=8*self.width*zoom, 
                               height=8*self.height*zoom)
-        photo.put("#%02x%02x%02x" % self.palette[0], 
-                  to=(0,0,8*self.width*zoom,8*self.height*zoom))
+        if block:
+            photo.put("#%02x%02x%02x" % self.palette[0], 
+                      to=(0,0,8*self.width*zoom,8*self.height*zoom))
         for i in range(0, 8*self.width):
             for j in range(0, 8*self.height):
                 if self.get(i,j) != 0:
