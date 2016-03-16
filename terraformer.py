@@ -80,7 +80,10 @@ class Application(tk.Frame):
         filemenu.add_command(label="Save Terraformer File", command=self.save)
         filemenu.add_command(label="Save As..", command=self.saveas)
         filemenu.add_separator()
-        filemenu.add_command(label="Import image", command=self.imports)
+        filemenu.add_command(label="Import image (16 color)", 
+                             command=lambda: self.imports(16))
+        filemenu.add_command(label="Import image (4 color)", 
+                             command=lambda: self.imports(4))
         filemenu.add_separator()
         filemenu.add_command(label="Export image to PNG", command=self.export)
         filemenu.add_command(label="Export selection to PNG", 
@@ -754,13 +757,13 @@ class Application(tk.Frame):
                 self.pixelgrid,
                 self.getCurrentSelection()).getTkImage(1).write(filen)
     
-    def imports(self):
+    def imports(self, colors):
         filen = filedialog.askopenfilename(
                 defaultextension=".png",
                 title="Import file")
         if filen != ():
             self.statusbar.config(text="Please wait")
-            self.pixelgrid = importer.importpixelgrid(filen)
+            self.pixelgrid = importer.importpixelgrid(filen, colors)
             self.statusbar.config(text="Imported file successfully.")
             self.redraw(True, True, True)
             
