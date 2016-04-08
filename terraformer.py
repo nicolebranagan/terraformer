@@ -35,7 +35,12 @@ class Application(tk.Frame):
             "lastdir" : "./"}
         
         try:
-            with open("./config.json", "r") as fileo:
+            os.makedirs(
+                    os.path.expanduser("~/.config/terraformer/"),
+                    exist_ok=True)
+            with open(
+                    os.path.expanduser(
+                        "~/.config/terraformer/config.json"), "r") as fileo:
                 self.config = json.load(fileo)
         except IOError:
             pass # Just use default
@@ -224,15 +229,15 @@ class Application(tk.Frame):
         # Create editing commands
         toolbox = tk.Frame(self)
         toolbox.grid(row=1, column=3, sticky=tk.N)
-        self.toolboximages = [tk.PhotoImage(file="./images/pencil.gif"),
-                              tk.PhotoImage(file="./images/apencil.gif"),
-                              tk.PhotoImage(file="./images/line.gif"),
-                              tk.PhotoImage(file="./images/rect.gif"),
-                              tk.PhotoImage(file="./images/arect.gif"),
-                              tk.PhotoImage(file="./images/box.gif"),
-                              tk.PhotoImage(file="./images/circ.gif"),
-                              tk.PhotoImage(file="./images/bcirc.gif"),
-                              tk.PhotoImage(file="./images/fill.gif")]
+        self.toolboximages = [tk.PhotoImage(file=get_path("images/pencil.gif")),
+                              tk.PhotoImage(file=get_path("images/apencil.gif")),
+                              tk.PhotoImage(file=get_path("images/line.gif")),
+                              tk.PhotoImage(file=get_path("images/rect.gif")),
+                              tk.PhotoImage(file=get_path("images/arect.gif")),
+                              tk.PhotoImage(file=get_path("images/box.gif")),
+                              tk.PhotoImage(file=get_path("images/circ.gif")),
+                              tk.PhotoImage(file=get_path("images/bcirc.gif")),
+                              tk.PhotoImage(file=get_path("images/fill.gif"))]
         pencilbutton = tk.Button(
             toolbox, image=self.toolboximages[0], width=24, height=24, 
             command=lambda:self.changetool(tool.Pencil(False)))
@@ -312,7 +317,7 @@ class Application(tk.Frame):
         self.imagegrab = tk.Canvas(self, width=512, height=64)
         self.imagegrab.grid(row=3,column=2)
         self.imagegrabimg = self.imagegrab.create_image(0, 0, anchor=tk.NW)
-        self.imagegrabtkimg = tk.PhotoImage(file="./images/nes.gif")
+        self.imagegrabtkimg = tk.PhotoImage(file=get_path("images/nes.gif"))
         self.imagegrab.itemconfig(self.imagegrabimg, image=self.imagegrabtkimg)
         self.imagegrab.bind("<Button-1>", self.clickimagegrab)
 
@@ -706,7 +711,9 @@ class Application(tk.Frame):
             self.config["lastdir"] = os.path.dirname(filen)
             self.currentfilename = os.path.basename(filen) 
             try:
-                with open("./config.json", "w") as fileo:
+                with open(
+                        os.path.expanduser("~/.config/terraformer/config.json")
+                        , "w") as fileo:
                     json.dump(self.config, fileo)
             except IOError:
                 pass # Not a big deal
@@ -781,7 +788,8 @@ class Application(tk.Frame):
                 defaultextension=".png",
                 title="Export strip to file")
         if filen != ():
-            self.pixelgrid.getTkStrip(height).write(filen)
+            self.pixelgrid.getTkStrip(
+                    height, self.transparentexport.get()).write(filen)
    
     def loadimagegrab(self):
         filen = filedialog.askopenfilename(
@@ -835,6 +843,9 @@ class Application(tk.Frame):
         self.pixelgrid.dellastpage()
         self.paginate(-1)
 
+def get_path(filename):
+    return os.path.join(os.path.dirname(__file__), filename)
+    
 root = tk.Tk()
 app = Application(master=root)
 app.mainloop()
