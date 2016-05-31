@@ -45,7 +45,6 @@ class PixelGrid:
         tiley = y // 8
         relx = x - tilex*8
         rely = y - tiley*8
-
         if ( (tilex, tiley) not in self._tiles):
             self._tiles[(tilex,tiley)] = PixelTile()
         self._tiles[(tilex,tiley)].set(relx, rely, val)
@@ -156,7 +155,7 @@ class PixelGrid:
 
     def dump(self):
         output = {}
-        output["version"] = 0.0 # just in case we need it later
+        output["version"] = 1 # just in case we need it later
         output["width"] = self.width
         output["height"] = self.height
         output["palette"] = self.palette
@@ -172,7 +171,18 @@ class PixelGrid:
 
         return output
 
-    def load(self, info):
+    @staticmethod
+    def load(info):
+        if "version" not in info:
+            raise VersionError(False)
+        
+        ver = info["version"]
+        
+        # This version only supports versions 0.0 or 1
+        if ver != 0.0 and ver != 1:
+            raise VersionError(ver)
+    
+        self = PixelGrid([tuple(x) for x in info["palette"]])
         self._pages = []
         self.width = int(info["width"])
         self.height = int(info["height"])
@@ -256,5 +266,13 @@ class PixelSubset(PixelGrid):
         self._pages = []
         self._pages.append(self._tiles)
 
-
+class VersionError(Exception):
+    """Raised when the version designator is incorrect.
+    
+    Attributes:
+        found -- The version designator (if it exists, otherwise False)
+    """
+    
+    def __init__(self, found):
+        self.found = found
 

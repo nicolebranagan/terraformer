@@ -625,8 +625,7 @@ class Application(tk.Frame):
                 clips = None
             else:
                 clipboard = json.loads(clipboard)
-                clips = PixelGrid(self.pixelgrid.palette)
-                clips.load(clipboard)
+                clips = PixelGrid.load(clipboard)
         except Exception as e:
             pass
 
@@ -699,7 +698,17 @@ class Application(tk.Frame):
                 initialdir=self.config["lastdir"])
         if filen != () and filen != "":
             with open(filen, "r") as fileo:
-                self.pixelgrid.load(json.load(fileo))
+                try:
+                    self.pixelgrid = PixelGrid.load(json.load(fileo))
+                except VersionError:
+                    messagebox.showerror(
+                        "Incorrect version",
+                        "This file is not intended for this version.")
+                except:
+                    messagebox.showerror(
+                        "Unknown error",
+                        "File is not compatible"
+                    )
             self.drawpalette()
             self.redraw()
                 

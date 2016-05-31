@@ -4,7 +4,7 @@ Cross-platform, paletted, pixel-graphics editor by Nicole Express
 
 I. How to run
 
-Terraformer is a graphics editor that requires a functioning Python 3 environment. Once python3 is installed, it can be run as a UNIX shell script, or simply by running the command "python3 terraformer.py".
+Terraformer is a graphics editor that requires a functioning Python 3 environment. Once python3 is installed, it can be run by simply calling "python3 terraformer".
 
 II. The interface
 
@@ -42,6 +42,10 @@ To load outside files, you can use the "Import" command. However, be cautious. T
 
 The program also supports exporting images to the .PNG format. You can export a single page, a selected region, or a page as a "strip" of tiles of a given size, which is convenient for games programming.
 
-IV. License
+IV. Known issues
+
+The importer has a bug where images are not always editable. Usually, this can be fixed by simply copy-pasting the imported region to a second Terraformer window.
+
+V. License
 
 Terraformer is (c) Nicole Branagan 2016 and is available subject to the MIT license.

@@ -346,7 +346,7 @@ class Fill(Tool):
                 break
         redraw()
             
-class Circle(Tool):
+class FilledCircle(Tool):
     def __init__(self):
         self.twostep = True
         self.pixel = True
@@ -361,10 +361,7 @@ class Circle(Tool):
                               x2, y2)
 
     def _step2(self, tilex, tiley, x2, y2, val):
-        undoblock([ tilex + math.floor(min(self.x1, x2)/8),
-                    tiley + math.floor(min(self.y1, y2)/8),
-                    tilex + math.ceil(max(self.x1, x2)/8),
-                    tiley + math.ceil(max(self.y1, y2)/8) ])
+        undoscreen()
         def draw_point(x,y):
             quickdraw(x, y, val)
             pixelgrid.set(tilex*8 + x, tiley*8 + y, val)
@@ -405,7 +402,7 @@ class Circle(Tool):
             func(xc - x, yc + y)
             func(xc - x, yc - y)
 
-class FilledCircle(Circle):
+class Circle(FilledCircle):
     def approximate_circ(self, func, x2, y2):
         x_1 = min(self.x1, x2)
         y_1 = min(self.y1, y2)
