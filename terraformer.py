@@ -701,6 +701,7 @@ class Application(tk.Frame):
             with open(filen, "r") as fileo:
                 try:
                     self.pixelgrid = PixelGrid.load(json.load(fileo))
+                    tool.initialize(self.pixelgrid, self.quickdraw, self.redraw)
                 except VersionError:
                     messagebox.showerror(
                         "Incorrect version",
@@ -790,6 +791,7 @@ class Application(tk.Frame):
         if filen != ():
             self.statusbar.config(text="Please wait")
             self.pixelgrid = importer.importpixelgrid(filen, colors)
+            tool.initialize(self.pixelgrid, self.quickdraw, self.redraw)
             self.statusbar.config(text="Imported file successfully.")
             self.redraw(True, True, True)
             

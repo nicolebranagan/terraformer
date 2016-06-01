@@ -42,10 +42,6 @@ To load outside files, you can use the "Import" command. However, be cautious. T
 
 The program also supports exporting images to the .PNG format. You can export a single page, a selected region, or a page as a "strip" of tiles of a given size, which is convenient for games programming.
 
-IV. Known issues
-
-The importer has a bug where images are not always editable. Usually, this can be fixed by simply copy-pasting the imported region to a second Terraformer window.
-
-V. License
+IV. License
 
 Terraformer is (c) Nicole Branagan 2016 and is available subject to the MIT license.
