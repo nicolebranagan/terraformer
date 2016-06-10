@@ -127,6 +127,9 @@ class Application(tk.Frame):
         palette1menu.add_command(
                 label="Windows 16-color",
                 command=lambda: self.setpalette(palette.win16))
+        palette1menu.add_command(
+                label="DB 16-color",
+                command=lambda: self.setpalette(palette.db16))
         palettemenu.add_cascade(label="Predefined palettes", 
                                 menu=palette1menu)
         palette2menu = tk.Menu(palettemenu)
