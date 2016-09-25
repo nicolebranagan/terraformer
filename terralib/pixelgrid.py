@@ -83,7 +83,7 @@ class PixelGrid:
                         for k in range(new_len, len(self.palette)):
                             self._tiles[(i,j)].flip(k, 0)
             self.palette = [self.palette[i] for i in range(0, new_len)]
-        else:
+        elif (len(self.palette) < new_len):
             for i in range(len(self.palette), new_len):
                 self.palette.append((0, 0, 0))
 

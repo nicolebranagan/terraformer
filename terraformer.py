@@ -129,6 +129,9 @@ class Application(tk.Frame):
         palettemenu.add_separator()
         palette1menu = tk.Menu(palettemenu)
         palette1menu.add_command(
+                label="Gameboy",
+                command=lambda: self.setpalette(palette.gameboy))
+        palette1menu.add_command(
                 label="EGA",
                 command=lambda: self.setpalette(palette.ega))
         palette1menu.add_command(
@@ -616,6 +619,7 @@ class Application(tk.Frame):
     def setpalette(self, p):
         newp = p[:] # Keep original palette unaltered
         tool.undopalette()
+        self.pixelgrid.changepalette(len(p))
         self.pixelgrid.palette = newp
         self.currentcolor = 0
         self.drawpalette()
