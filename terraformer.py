@@ -120,6 +120,13 @@ class Application(tk.Frame):
         menubar.add_cascade(label="Edit", menu=editmenu)
 
         palettemenu = tk.Menu(menubar)
+        palettemenu.add_command(
+            label="Expand palette",
+            command=self.expandpalette)
+        palettemenu.add_command(
+            label="Reduce palette",
+            command=self.reducepalette)            
+        palettemenu.add_separator()
         palette1menu = tk.Menu(palettemenu)
         palette1menu.add_command(
                 label="EGA",
@@ -349,13 +356,20 @@ class Application(tk.Frame):
     def drawpalette(self):
         self.palette = self.drawpalettestrip(self.pixelgrid.palette)
         self.palettecanvas.itemconfig(self.paletteimage, image=self.palette)
+        self.palettecanvas.config(
+            width=512, height=32*math.ceil(len(self.pixelgrid.palette)/16))
 
     def drawpalettestrip(self, palette):
-        img = tk.PhotoImage(width=512, height=32)
+        rows = math.ceil(len(palette)/16)
+        img = tk.PhotoImage(width=512, height=rows*32)
         i = 0
+        j = 0
         for c in palette:
-            img.put("#%02x%02x%02x" % c, to=(i*32,0,(i+1)*32,32))
+            img.put("#%02x%02x%02x" % c, to=(i*32,j*32,(i+1)*32,(j+1)*32))
             i = i+1
+            if (i == 16):
+                j = j+1
+                i = 0
         return img
 
     def resetscale(self, event):
@@ -532,20 +546,45 @@ class Application(tk.Frame):
                          self.selectedy * 8 + y))
 
     def clickpalettecanvas(self, event):
-        i = math.floor(self.palettecanvas.canvasx(event.x) // 32)
+        i = self.getclickedpalette(event)
         if i < len(self.pixelgrid.palette):
             self.selectcolor(i)
 
     def rclickpalettecanvas(self, event):
-        i = math.floor(self.palettecanvas.canvasx(event.x) // 32)
+        i = self.getclickedpalette(event)
         if i < len(self.pixelgrid.palette):
             tool.undoblock(self.getCurrentSelection())
             self.pixelgrid.flipColors(self.currentcolor, i,
                                       self.getCurrentSelection())
             self.redraw()
 
-    def dclickpalettecanvas(self, event):
+    def getclickedpalette(self, event):
         i = math.floor(self.palettecanvas.canvasx(event.x) // 32)
+        j = math.floor(self.palettecanvas.canvasx(event.y) // 32)
+        return i + (j*16)
+    
+    def expandpalette(self):
+        new_len = 16
+        if (len(self.pixelgrid.palette) >= 16):
+            new_len = len(self.pixelgrid.palette) + 16
+        self.pixelgrid.changepalette(new_len)
+        self.drawpalette()
+
+    def reducepalette(self):
+        new_len = len(self.pixelgrid.palette) - 16
+        if new_len < 0:
+            self.statusbar.config(text=("Can not reduce color palette"))
+            return
+        elif new_len == 0:
+            new_len = 4
+        
+        self.selectcolor(0)
+        self.pixelgrid.changepalette(new_len)
+        self.drawpalette()
+        self.redraw()
+
+    def dclickpalettecanvas(self, event):
+        i = self.getclickedpalette(event)
         if i < len(self.pixelgrid.palette):
             color=colorchooser.askcolor(
                     initialcolor=self.pixelgrid.palette[i])
@@ -568,7 +607,11 @@ class Application(tk.Frame):
     def selectcolor(self, i):
         self.midstep = False
         self.currentcolor = i
-        self.palettecanvas.coords(self.paletteselect, i*32, 1, (i+1)*32, 32)
+        colory = i // 16
+        colorx = i % 16
+        self.palettecanvas.coords(
+            self.paletteselect, colorx*32, colory*32, 
+            (colorx+1)*32, (colory+1)*32)
 
     def setpalette(self, p):
         newp = p[:] # Keep original palette unaltered

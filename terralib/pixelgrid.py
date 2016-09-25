@@ -75,6 +75,18 @@ class PixelGrid:
                 elif val1 == 0:
                     self._tiles[(i, j)] = PixelTile(val2)
 
+    def changepalette(self, new_len):
+        if (len(self.palette) > new_len):
+            for i in range(0, 8*self.width):
+                for j in range(0, 8*self.height):
+                    if (i,j) in self._tiles:
+                        for k in range(new_len, len(self.palette)):
+                            self._tiles[(i,j)].flip(k, 0)
+            self.palette = [self.palette[i] for i in range(0, new_len)]
+        else:
+            for i in range(len(self.palette), new_len):
+                self.palette.append((0, 0, 0))
+
     def linearshift(self, a, b, c, d, e, f):
         oldtiles = copy.deepcopy(self._tiles)
         for x in range(0, 8*self.width):
