@@ -175,13 +175,13 @@ class Application(tk.Frame):
         hflipbutton = tk.Button(
                 shiftframe, text="H. Flip", 
                 command=lambda:tool.LinearFunc(
-                    -1,0,1,0,1,0).step1(
+                    1,0,0,0,-1,1).step1(
                     self.getCurrentSelection()))
         hflipbutton.grid(row=0, column=0)
         vflipbutton = tk.Button(
                 shiftframe, text="V. Flip", 
                 command=lambda:tool.LinearFunc(
-                    1,0,0,0,-1,1).step1(
+                    -1,0,1,0,1,0).step1(
                     self.getCurrentSelection()))
         vflipbutton.grid(row=0, column=1)
         rotcwbutton = tk.Button(
