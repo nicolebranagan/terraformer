@@ -77,15 +77,18 @@ def _averagecolor(color1, color2):
 def _square(a):
     return a*a
 
-def importpixelgrid(filen, maxcolors):
+def importpixelgrid(filen, maxcolors, palette=-1):
     colors = ColorSet(maxcolors)
     image = Image.open(filen).convert("RGB")
-    
-    # Build palette
-    for i in range(0, min(image.width, 256)):
-        for j in range(0, min(image.height, 256)):
-            pixel = image.getpixel((i,j))
-            colors.addColor(pixel)
+
+    if palette == -1:
+        # Build palette
+        for i in range(0, min(image.width, 256)):
+            for j in range(0, min(image.height, 256)):
+                pixel = image.getpixel((i,j))
+                colors.addColor(pixel)
+    else:
+        colors.colors = palette
 
     grid = pixelgrid.PixelGrid(colors.palette)
     
