@@ -92,8 +92,8 @@ class Application(tk.Frame):
                              command=lambda: self.imports(
                                  self.pixelgrid.palette))
         filemenu.add_separator()
-        filemenu.add_command(label="Export image to PNG", command=self.export)
-        filemenu.add_command(label="Export selection to PNG", 
+        filemenu.add_command(label="Export image", command=self.export)
+        filemenu.add_command(label="Export selection", 
                 command=self.exportselection)
         exportmenu = tk.Menu(filemenu)
         exportmenu.add_command(label="8x8", 
@@ -819,7 +819,7 @@ class Application(tk.Frame):
     
     def export(self):
         filen = filedialog.asksaveasfilename(
-                defaultextension=".png",
+                defaultextension=".gif",
                 title="Export to file")
         if filen != ():
             self.pixelgrid.getTkImage(1, 
@@ -827,7 +827,7 @@ class Application(tk.Frame):
 
     def exportselection(self):
         filen = filedialog.asksaveasfilename(
-                defaultextension=".png",
+                defaultextension=".gif",
                 title="Export to file")
         if filen != ():
             PixelSubset(
@@ -849,7 +849,7 @@ class Application(tk.Frame):
             
     def exportstrip(self, height):
         filen = filedialog.asksaveasfilename(
-                defaultextension=".png",
+                defaultextension=".gif",
                 title="Export strip to file")
         if filen != ():
             self.pixelgrid.getTkStrip(
