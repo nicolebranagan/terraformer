@@ -64,6 +64,16 @@ class Application(tk.Frame):
         self.master.bind("<Control-z>", tool.undo)
         self.master.bind("<Control-S>", self.save)
         self.master.bind("<Control-s>", self.save)
+        self.master.bind("<Command-X>", self.cut)
+        self.master.bind("<Command-x>", self.cut)
+        self.master.bind("<Command-C>", self.copy)
+        self.master.bind("<Command-c>", self.copy)
+        self.master.bind("<Command-V>", self.paste)
+        self.master.bind("<Command-v>", self.paste)
+        self.master.bind("<Command-Z>", tool.undo)
+        self.master.bind("<Command-z>", tool.undo)
+        self.master.bind("<Command-S>", self.save)
+        self.master.bind("<Command-s>", self.save)
         
         self.master.bind("<Left>", lambda x: self.reselecttile(
                     self.selectedx-self.multiple, self.selectedy))
@@ -227,7 +237,9 @@ class Application(tk.Frame):
                 self.multiple * self.basezoom * 8,
                 outline="grey")
         self.imagecanvas.bind("<Button-1>", self.clickimagecanvas)
-        self.imagecanvas.bind("<Button-2>", self.mclickimagecanvas)
+        #self.imagecanvas.bind("<Button-2>", self.mclickimagecanvas)
+        self.imagecanvas.bind("<Button-2>", self.rclickimagecanvas)
+        self.imagecanvas.bind("<B2-Motion>", self.rmotionimagecanvas)        
         self.imagecanvas.bind("<Button-3>", self.rclickimagecanvas)
         self.imagecanvas.bind("<B3-Motion>", self.rmotionimagecanvas)
 
@@ -239,6 +251,7 @@ class Application(tk.Frame):
         self.editcanvas.bind("<Button-1>", self.clickeditcanvas)
         self.editcanvas.bind("<B1-Motion>", self.motioneditcanvas)
         self.editcanvas.bind("<ButtonRelease-1>", self.releaseeditcanvas)
+        self.editcanvas.bind("<Button-2>", self.rclickeditcanvas)
         self.editcanvas.bind("<Button-3>", self.rclickeditcanvas)
         
         # Create editing commands
@@ -322,6 +335,7 @@ class Application(tk.Frame):
         self.paletteselect = self.palettecanvas.create_rectangle(
                 1, 1, 32, 32, outline="red")
         self.palettecanvas.bind("<Button-1>", self.clickpalettecanvas)
+        self.palettecanvas.bind("<Button-2>", self.rclickpalettecanvas)
         self.palettecanvas.bind("<Button-3>", self.rclickpalettecanvas)
         self.palettecanvas.bind("<Double-Button-1>", self.dclickpalettecanvas)
 
