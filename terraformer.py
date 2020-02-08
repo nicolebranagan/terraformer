@@ -423,6 +423,7 @@ class Application(tk.Frame):
                 self.imagecanvas.canvasy(event.y) / 
                 (self.basezoom * 8))
         self.reselecttile(x, y)
+        self.statusbar.config(text=("x: {}, y: {}".format(x*8, y*8)))
 
     def mclickimagecanvas(self, event):
         if (self.selecting):
