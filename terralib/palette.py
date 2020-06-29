@@ -93,3 +93,7 @@ def _constrain_genesis(c):
     return (math.floor(c[0]/32)*32,
             math.floor(c[1]/32)*32,
             math.floor(c[2]/32)*32)
+
+def rotate(pal):
+    pallen = len(pal)
+    return [pal[(i + 16) % pallen] for i in range(0, pallen)]

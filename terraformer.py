@@ -163,6 +163,10 @@ class Application(tk.Frame):
         palettemenu.add_command(
                 label="Clear palette",
                 command=lambda: self.setpalette(palette.none))
+        palettemenu.add_command(
+            label="Rotate palette",
+            command=self.rotatepalette
+        )
         menubar.add_cascade(label="Palette", menu=palettemenu)
 
         optionsmenu = tk.Menu(menubar)
@@ -644,6 +648,12 @@ class Application(tk.Frame):
     def constrainpalette(self, c):
         tool.undopalette()
         palette.constrain(self.pixelgrid.palette, c)
+        self.drawpalette()
+        self.redraw()
+
+    def rotatepalette(self):
+        tool.undopalette()
+        self.pixelgrid.palette = palette.rotate(self.pixelgrid.palette)
         self.drawpalette()
         self.redraw()
 
