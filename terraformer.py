@@ -342,6 +342,8 @@ class Application(tk.Frame):
         self.palettecanvas.bind("<Button-2>", self.rclickpalettecanvas)
         self.palettecanvas.bind("<Button-3>", self.rclickpalettecanvas)
         self.palettecanvas.bind("<Double-Button-1>", self.dclickpalettecanvas)
+        self.palettecanvas.bind("<Double-Button-2>", self.drclickpalettecanvas)
+        self.palettecanvas.bind("<Double-Button-3>", self.drclickpalettecanvas)
 
         # Image grabber
         loadimagegrab = tk.Button(self, text="Load new source image",
@@ -619,6 +621,15 @@ class Application(tk.Frame):
             self.drawpalette()
             self.redraw()
     
+    def drclickpalettecanvas(self, event):
+        i = self.getclickedpalette(event)
+        if i < len(self.pixelgrid.palette):
+            self.pixelgrid.palette[i] = self.pixelgrid.palette[
+                self.currentcolor
+            ]
+            self.drawpalette()
+            self.redraw()
+
     def clickimagegrab(self, event):
         x = int(self.imagegrab.canvasx(event.x))
         y = int(self.imagegrab.canvasy(event.y))
