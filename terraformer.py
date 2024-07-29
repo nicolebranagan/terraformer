@@ -15,6 +15,7 @@ import terralib.palette as palette
 import terralib.tool as tool
 from terralib.pixelgrid import *
 import terralib.importer as importer
+#import terralib.composite as composite
 
 class Application(tk.Frame):
     def __init__(self, master=None):
@@ -54,6 +55,7 @@ class Application(tk.Frame):
         self.master.title("Terraformer")
         
         self.master.bind("<Delete>", self.delete)
+        self.master.bind("<BackSpace>", self.delete)
         self.master.bind("<Control-X>", self.cut)
         self.master.bind("<Control-x>", self.cut)
         self.master.bind("<Control-C>", self.copy)
@@ -689,6 +691,7 @@ class Application(tk.Frame):
         if image:
             self.image = self.pixelgrid.getTkImage(self.basezoom)
             self.imagecanvas.itemconfig(self.imagecanvasimage, image=self.image)
+            #composite.convert(self.pixelgrid)
         if canvas and not self.selecting:
             self.editimage = self.pixelgrid.getTkSubset(
                     self.basezoom * (256 // (8*self.multiple)),
@@ -892,9 +895,11 @@ class Application(tk.Frame):
                     height, self.transparentexport.get()).write(filen)
    
     def loadimagegrab(self):
+        print(self.config)
         filen = filedialog.askopenfilename(
-                filetypes=(("Terraformer, GIF, PNG, PGM/PPM images", "*"),
-                           ("All files", "*")),
+                #filetypes=(("Terraformer, GIF, PNG, PGM/PPM images", "*"),
+                #           ("All files", "*")),
+                defaultextension=".png",
                 title="Load source image",
                 initialdir=self.config["lastdir"])
         if filen != () and filen != "":
