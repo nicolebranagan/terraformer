@@ -423,3 +423,34 @@ class Circle(FilledCircle):
                     func(xc-x, yc+y)
                     func(xc+x, yc-y)
                     func(xc-x, yc-y)
+
+class Shadowize:
+    def __init__(self, selectedcolor, basezoom):
+        self.twostep = False
+        self.pixel = False
+        self.selectedcolor = selectedcolor
+        self.basezoom = basezoom
+
+    def step1(self, selection):
+        global pixelgrid
+        global redraw
+        print(self.basezoom)
+        undoblock(selection)
+        block = PixelSubset(pixelgrid, selection)
+        for x in range(0, 8*block.width):
+            for y in range(0, 8*block.height):
+                if x % (8*self.basezoom) == (8*self.basezoom - 1):
+                    continue
+                if y % (8*self.basezoom) == (8*self.basezoom - 1):
+                    continue
+                potential_tile = block.get(x,y)
+                potential_shadow = block.get(x+1,y+1)
+                if potential_tile == 0:
+                    continue
+                if potential_shadow != 0:
+                    continue
+                if potential_tile == self.selectedcolor:
+                    continue
+                block.set(x+1, y+1, self.selectedcolor)
+        pixelgrid.mergeSubset(block, selection[0], selection[1])
+        redraw()

@@ -171,6 +171,14 @@ class Application(tk.Frame):
         )
         menubar.add_cascade(label="Palette", menu=palettemenu)
 
+        toolsmenu = tk.Menu(menubar)
+        toolsmenu.add_command(
+            label="Add shadows",
+            command=lambda: tool.Shadowize(self.currentcolor, self.basezoom).step1(
+                            self.getCurrentSelection())
+        )
+        menubar.add_cascade(label="Tools", menu=toolsmenu)
+
         optionsmenu = tk.Menu(menubar)
         self.transparentexport = tk.BooleanVar()
         self.transparentexport.set(True)
