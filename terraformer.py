@@ -103,6 +103,8 @@ class Application(tk.Frame):
         filemenu.add_command(label="Import image using current palette", 
                              command=lambda: self.imports(
                                  self.pixelgrid.palette))
+        filemenu.add_command(label="Import image at half size", 
+                             command=lambda: self.imports(zoom=2))
         filemenu.add_separator()
         filemenu.add_command(label="Export image", command=self.export)
         filemenu.add_command(label="Export selection", 
@@ -882,14 +884,14 @@ class Application(tk.Frame):
                 self.getCurrentSelection()).getTkImage(1,
                     block=self.transparentexport.get()).write(filen)
     
-    def imports(self, newpalette=-1):
+    def imports(self, newpalette=-1, zoom=1):
         filen = filedialog.askopenfilename(
                 defaultextension=".png",
                 title="Import file")
         if filen != ():
             self.statusbar.config(text="Please wait")
             self.pixelgrid = importer.importpixelgrid(
-                filen, len(self.pixelgrid.palette), newpalette)
+                filen, len(self.pixelgrid.palette), newpalette, zoom)
             tool.initialize(self.pixelgrid, self.quickdraw, self.redraw)
             self.statusbar.config(text="Imported file successfully.")
             self.redraw(True, True, True)
