@@ -159,9 +159,13 @@ class Application(tk.Frame):
                                 menu=palette1menu)
         palette2menu = tk.Menu(palettemenu)
         palette2menu.add_command(
-                label="Genesis",
+                label="Genesis (9-bit)",
                 command=lambda: self.constrainpalette(
                     palette.Constraint.Genesis)) 
+        palette2menu.add_command(
+                label="Sega Master System (6-bit)",
+                command=lambda: self.constrainpalette(
+                    palette.Constraint.SMS)) 
         palettemenu.add_cascade(label="Constrain palette",
                                 menu=palette2menu)
         palettemenu.add_command(

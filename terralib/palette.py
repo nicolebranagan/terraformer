@@ -81,10 +81,12 @@ none = [
 
 class Constraint(Enum):
     Genesis = 0
+    SMS = 2
     
 def constrain(l, c):
     constrainfunc = {
         Constraint.Genesis : _constrain_genesis,
+        Constraint.SMS : _constrain_sms,
         }.get(c,lambda x: None)
     for i in range(0, len(l)):
         l[i] = constrainfunc(l[i])
@@ -93,6 +95,11 @@ def _constrain_genesis(c):
     return (math.floor(c[0]/32)*32,
             math.floor(c[1]/32)*32,
             math.floor(c[2]/32)*32)
+
+def _constrain_sms(c):
+    return ((c[0] // 64) * 64,
+            (c[1] // 64) * 64,
+            (c[2] // 64) * 64)
 
 def rotate(pal):
     pallen = len(pal)
